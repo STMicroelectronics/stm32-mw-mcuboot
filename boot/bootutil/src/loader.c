@@ -319,6 +319,7 @@ boot_status_is_reset(const struct boot_status *bs)
             bs->state == BOOT_STATUS_STATE_0);
 }
 
+#if !defined(MCUBOOT_PRIMARY_ONLY)
 /**
  * Writes the supplied boot status to the flash file system.  The boot status
  * contains the current state of an in-progress image copy operation.
@@ -381,6 +382,7 @@ done:
     flash_area_close(fap);
     return rc;
 }
+#endif /* MCUBOOT_PRIMARY_ONLY */
 
 /*
  * Validate image hash/signature and optionally the security counter in a slot.
@@ -792,6 +794,7 @@ boot_copy_region(struct boot_loader_state *state,
         image_index = BOOT_CURR_IMG(state);
         off = off_src;
         hdr = boot_img_hdr(state, BOOT_PRIMARY_SLOT);
+        {
 #else
 #ifdef MCUBOOT_ENC_IMAGES
         image_index = BOOT_CURR_IMG(state);
@@ -815,37 +818,37 @@ boot_copy_region(struct boot_loader_state *state,
             }
 #endif
 #endif
-        }
-#endif
-        if (IS_ENCRYPTED(hdr)) {
-            blk_sz = chunk_sz;
-            idx = 0;
-            if (off + bytes_copied < hdr->ih_hdr_size) {
-                /* do not decrypt header */
+#endif /* MCUBOOT_PRIMARY_ONLY */
+            if (IS_ENCRYPTED(hdr)) {
+                blk_sz = chunk_sz;
+                idx = 0;
+                if (off + bytes_copied < hdr->ih_hdr_size) {
+                    /* do not decrypt header */
 #if defined(MCUBOOT_PRIMARY_ONLY)
-                /* remove encryption flag in primary only */
-                BOOT_LOG_INF("ih_flags %x",((struct image_header *)buf)->ih_flags);
-                ((struct image_header *)buf)->ih_flags &=~IMAGE_F_ENCRYPTED;
-                BOOT_LOG_INF("ih_flags %x",((struct image_header *)buf)->ih_flags);
+                    /* remove encryption flag in primary only */
+                    BOOT_LOG_INF("ih_flags %x",((struct image_header *)buf)->ih_flags);
+                    ((struct image_header *)buf)->ih_flags &=~IMAGE_F_ENCRYPTED;
+                    BOOT_LOG_INF("ih_flags %x",((struct image_header *)buf)->ih_flags);
 #endif
-                blk_off = 0;
-                blk_sz = chunk_sz - hdr->ih_hdr_size;
-                idx = hdr->ih_hdr_size;
-            } else {
-                blk_off = ((off + bytes_copied) - hdr->ih_hdr_size) & 0xf;
-            }
-            tlv_off = BOOT_TLV_OFF(hdr);
-            if (off + bytes_copied + chunk_sz > tlv_off) {
-                /* do not decrypt TLVs */
-                if (off + bytes_copied >= tlv_off) {
-                    blk_sz = 0;
+                    blk_off = 0;
+                    blk_sz = chunk_sz - hdr->ih_hdr_size;
+                    idx = hdr->ih_hdr_size;
                 } else {
-                    blk_sz = tlv_off - (off + bytes_copied);
+                    blk_off = ((off + bytes_copied) - hdr->ih_hdr_size) & 0xf;
                 }
+                tlv_off = BOOT_TLV_OFF(hdr);
+                if (off + bytes_copied + chunk_sz > tlv_off) {
+                    /* do not decrypt TLVs */
+                    if (off + bytes_copied >= tlv_off) {
+                        blk_sz = 0;
+                    } else {
+                        blk_sz = tlv_off - (off + bytes_copied);
+                    }
+                }
+                boot_encrypt(BOOT_CURR_ENC(state), image_index, fap_src,
+                             (off + bytes_copied + idx) - hdr->ih_hdr_size, blk_sz,
+                             blk_off, &buf[idx]);
             }
-            boot_encrypt(BOOT_CURR_ENC(state), image_index, fap_src,
-                         (off + bytes_copied + idx) - hdr->ih_hdr_size, blk_sz,
-                         blk_off, &buf[idx]);
         }
 #if defined(MCUBOOT_PRIMARY_ONLY)
         rc = flash_area_erase(fap_dst, off_dst + bytes_copied, chunk_sz);
@@ -1724,7 +1727,7 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
 {
     size_t slot;
     struct boot_status bs;
-    int rc;
+    int rc = -1;
     int fa_id;
     int image_index;
 #if (BOOT_IMAGE_NUMBER > 1)
@@ -1899,10 +1902,10 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
         }
 
 #ifdef MCUBOOT_VALIDATE_PRIMARY_SLOT
-#if defined(MUCBOOT_DOUBLE_SIGN_VERIF)
+#if defined(MCUBOOT_DOUBLE_SIGN_VERIF)
         /* Enable image validation double check */
         ImageValidEnable = 1;
-#endif /* MUCBOOT_DOUBLE_SIGN_VERIF */
+#endif /* MCUBOOT_DOUBLE_SIGN_VERIF */
 
         rc = boot_validate_slot(state, BOOT_PRIMARY_SLOT, NULL);
         if (rc != 0) {
@@ -1910,10 +1913,10 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
             goto out;
         }
 
-#if defined(MUCBOOT_DOUBLE_SIGN_VERIF)
+#if defined(MCUBOOT_DOUBLE_SIGN_VERIF)
         /* Disable image validation double check */
         ImageValidEnable = 0;
-#endif /* MUCBOOT_DOUBLE_SIGN_VERIF */
+#endif /* MCUBOOT_DOUBLE_SIGN_VERIF */
 #else
         /* Even if we're not re-validating the primary slot, we could be booting
          * onto an empty flash chip. At least do a basic sanity check that

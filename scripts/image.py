@@ -38,7 +38,6 @@ import ctypes
 import binascii
 #specific for OTFDEC 
 import numpy
-from Cryptodome.Cipher import AES
 
 IMAGE_MAGIC = 0x96f3b83d
 IMAGE_HEADER_SIZE = 32

@@ -185,6 +185,7 @@ uint32_t
 boot_trailer_sz(uint32_t min_write_sz)
 {
     return /* state for all sectors */
+#if !defined(MCUBOOT_OVERWRITE_ONLY)
            boot_status_sz(min_write_sz)           +
 #ifdef MCUBOOT_ENC_IMAGES
            /* encryption keys */
@@ -194,8 +195,11 @@ boot_trailer_sz(uint32_t min_write_sz)
            BOOT_ENC_KEY_SIZE * 2                  +
 #  endif
 #endif
-           /* swap_type + copy_done + image_ok + swap_size */
-           BOOT_MAX_ALIGN * 4                     +
+           /* swap_type + swap_size */
+           BOOT_MAX_ALIGN * 2                     +
+#endif
+           /* copy_done + image_ok */
+           BOOT_MAX_ALIGN * 2                     +
            BOOT_MAGIC_SZ;
 }
 
@@ -228,7 +232,7 @@ boot_status_off(const struct flash_area *fap)
     return fap->fa_size - off_from_end;
 }
 
-static inline uint32_t
+uint32_t
 boot_magic_off(const struct flash_area *fap)
 {
     return fap->fa_size - BOOT_MAGIC_SZ;

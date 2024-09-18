@@ -262,6 +262,7 @@ uint32_t boot_status_sz(uint32_t min_write_sz);
 uint32_t boot_trailer_sz(uint32_t min_write_sz);
 int boot_status_entries(int image_index, const struct flash_area *fap);
 uint32_t boot_status_off(const struct flash_area *fap);
+uint32_t boot_magic_off(const struct flash_area *fap);
 uint32_t boot_swap_info_off(const struct flash_area *fap);
 int boot_read_swap_state(const struct flash_area *fap,
                          struct boot_swap_state *state);

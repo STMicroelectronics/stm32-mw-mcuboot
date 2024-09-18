@@ -31,9 +31,9 @@
 
 #include "bootutil_priv.h"
 
-#if defined(MUCBOOT_DOUBLE_SIGN_VERIF)
+#if defined(MCUBOOT_DOUBLE_SIGN_VERIF)
 #include "boot_hal_imagevalid.h"
-#endif /* MUCBOOT_DOUBLE_SIGN_VERIF */
+#endif /* MCUBOOT_DOUBLE_SIGN_VERIF */
 
 /*
  * Constants for this particular constrained implementation of
@@ -264,7 +264,7 @@ bootutil_cmp_rsasig(mbedtls_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
         return -1;
     }
 
-#if defined(MUCBOOT_DOUBLE_SIGN_VERIF)
+#if defined(MCUBOOT_DOUBLE_SIGN_VERIF)
     /* Double the signature verification (using another way) to resist to basic HW attacks.
      * The second verification is applicable to final signature check on primary slot images
      * only (condition: ImageValidEnable).
@@ -284,7 +284,7 @@ bootutil_cmp_rsasig(mbedtls_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
         em[PSS_HASH_OFFSET] ^= IMAGE_VALID;
         ImageValidStatus[ImageValidIndex++] = boot_secure_memequal(h2, &em[PSS_HASH_OFFSET], PSS_HLEN);
     }
-#endif /* MUCBOOT_DOUBLE_SIGN_VERIF */
+#endif /* MCUBOOT_DOUBLE_SIGN_VERIF */
 
     return 0;
 }

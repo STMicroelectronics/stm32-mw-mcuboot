@@ -125,7 +125,7 @@ bootutil_img_hash(struct enc_key_data *enc_state, int image_index,
 #ifdef MCUBOOT_PRIMARY_ONLY
     if (MUST_DECRYPT_PRIMARY_ONLY(fap, image_index, hdr)) {
 #else
-    if (MUST_DECRYPT(fap, image_index, hdr)) { 
+    if (MUST_DECRYPT(fap, image_index, hdr)) {
 #endif
             /* Only payload is encrypted (area between header and TLVs) */
             if (off >= hdr_size && off < tlv_off) {
@@ -183,11 +183,11 @@ bootutil_img_hash(struct enc_key_data *enc_state, int image_index,
 #elif defined(MCUBOOT_SIGN_EC)
 #    define EXPECTED_SIG_TLV IMAGE_TLV_ECDSA224
 #    define SIG_BUF_SIZE 128
-#    define EXPECTED_SIG_LEN(x)  (1) /* always true, ASN.1 will validate */
+#    define EXPECTED_SIG_LEN(x)  ((x) <= 64) /* (tbc) 56 bytes for sign + 8 bytes for asn1 */
 #elif defined(MCUBOOT_SIGN_EC256)
 #    define EXPECTED_SIG_TLV IMAGE_TLV_ECDSA256
 #    define SIG_BUF_SIZE 128
-#    define EXPECTED_SIG_LEN(x)  (1) /* always true, ASN.1 will validate */
+#    define EXPECTED_SIG_LEN(x) ((x) <= 72) /* (tbc) 64 bytes for sign + 8 bytes for asn1 */
 #elif defined(MCUBOOT_SIGN_ED25519)
 #    define EXPECTED_SIG_TLV IMAGE_TLV_ED25519
 #    define SIG_BUF_SIZE 64
@@ -295,6 +295,9 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
     uint16_t len;
     uint16_t type;
     int sha256_valid = 0;
+#if defined(MCUBOOT_ENCRYPT_RSA) || defined(MCUBOOT_ENCRYPT_KW) || defined(MCUBOOT_ENCRYPT_EC256)
+    uint8_t tlv_enc = 0;
+#endif
 #ifdef EXPECTED_SIG_TLV
     int valid_signature = 0;
     int key_id = -1;
@@ -366,10 +369,11 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
                 return rc;
             }
             key_id = bootutil_find_key(image_index, buf, len);
-            /*
-             * The key may not be found, which is acceptable.  There
-             * can be multiple signatures, each preceded by a key.
-             */
+            /* The key must be found */
+            if (key_id < 0 || key_id >= bootutil_key_cnt)
+            {
+                return -1;
+            }
         } else if (type == EXPECTED_SIG_TLV) {
             /* Ignore this signature if it is out of bounds. */
             if (key_id < 0 || key_id >= bootutil_key_cnt) {
@@ -385,6 +389,10 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
             }
 			BOOT_LOG_INF("verify sig key id %d", key_id);
             rc = bootutil_verify_sig(hash, sizeof(hash), buf, len, key_id);
+            if (rc) {
+                BOOT_LOG_INF("signature K0");
+                return -1;
+            }
             if (rc == 0) {
 				BOOT_LOG_INF("signature OK");
                 valid_signature = 1;
@@ -393,6 +401,12 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
 #endif /* EXPECTED_SIG_TLV */
 #ifdef MCUBOOT_HW_ROLLBACK_PROT
         } else if (type == IMAGE_TLV_SEC_CNT) {
+            /* check that TLV is within protected area */
+            /* tlv off is set to next tlv */
+            if (it.tlv_off > it.prot_end)
+            {
+                return -1;
+            }
             /*
              * Verify the image's security counter.
              * This must always be present.
@@ -425,6 +439,67 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
             security_counter_valid = 1;
 #endif /* MCUBOOT_HW_ROLLBACK_PROT */
         }
+        else
+            /* unexpected TLV , injection of assembly pattern , possible */
+        {
+            rc = -1;
+#if defined(MCUBOOT_ENCRYPT_RSA)
+            if (type == IMAGE_TLV_ENC_RSA2048)
+            {
+                /* Check tlv length */
+                if ((len == 256)
+#if !defined(MCUBOOT_PRIMARY_ONLY)
+                    /* Check image is encrypted */
+#if defined(TFM_EXTERNAL_FLASH_ENABLE)
+                    && (IS_ENCRYPTED(hdr) || IS_OTFDEC_ENCRYPTED(hdr))
+#else
+                    && ((hdr->ih_flags & IMAGE_F_ENCRYPTED) == IMAGE_F_ENCRYPTED)
+#endif /* TFM_EXTERNAL_FLASH_ENABLE */
+#endif /* !defined(MCUBOOT_PRIMARY_ONLY) */
+                    /* Only one non protected TLV allowed */
+                    && (tlv_enc == 0))
+                {
+                    tlv_enc = 1;
+                    rc = 0;
+                }
+            }
+#elif defined(MCUBOOT_ENCRYPT_KW)
+            if (type == IMAGE_TLV_ENC_KW128)
+            {
+                rc = 0;
+            }
+#elif defined(MCUBOOT_ENCRYPT_EC256)
+            if (type == IMAGE_TLV_ENC_EC256)
+            {
+                /* Check tlv lenght */
+                if ((len == 113)
+#if !defined(MCUBOOT_PRIMARY_ONLY)
+                    /* Check image is encrypted */
+#if defined(TFM_EXTERNAL_FLASH_ENABLE)
+                    && (IS_ENCRYPTED(hdr) || IS_OTFDEC_ENCRYPTED(hdr))
+#else
+                    && ((hdr->ih_flags & IMAGE_F_ENCRYPTED) == IMAGE_F_ENCRYPTED)
+#endif /* TFM_EXTERNAL_FLASH_ENABLE */
+#endif /* !defined(MCUBOOT_PRIMARY_ONLY) */
+                    /* Only one non protected TLV allowed */
+                    && (tlv_enc == 0))
+                {
+                        tlv_enc = 1;
+                        rc = 0;
+                }
+            }
+#endif
+            if (type == IMAGE_TLV_DEPENDENCY)
+            {
+                rc = 0;
+            }
+            if (rc)
+            {
+
+                BOOT_LOG_INF("unexpected TLV %x ", type);
+                return rc;
+            }
+        }
     }
 
     if (!sha256_valid) {
@@ -438,6 +513,62 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
         return -1;
 #endif
     }
-
+    /* Check pattern in slot, after image payload */
+#if !defined(MCUBOOT_PRIMARY_ONLY)
+    if (fap->fa_id == FLASH_AREA_IMAGE_SECONDARY(image_index))
+    {
+        uint64_t data;
+        off = it.tlv_end;
+        /* Check that tlv_end is not overlapping trailer */
+        if (off > boot_status_off(fap))
+        {
+            return -1;
+        }
+        /* read flash per byte, until next doubleword */
+        if (off % 8)
+        {
+            uint32_t end0 = (((off / 8) + 1) * 8);
+            while (off < end0)
+            {
+                uint8_t data;
+                rc = flash_area_read(fap, off, &data, sizeof(data));
+                if (rc)
+                {
+                    BOOT_LOG_INF("read failed %x ", off);
+                    return rc;
+                }
+                if (data != 0xff)
+                {
+                    BOOT_LOG_INF("data wrong at %x", off);
+                    return -1;
+                }
+                off += sizeof(data);
+            }
+        }
+        /* read flash per doubleword */
+#if defined(MCUBOOT_OVERWRITE_ONLY)
+        /* check pattern till magic at end of slot */
+        uint32_t end = boot_magic_off(fap);
+#else
+        /* check pattern till trailer */
+        uint32_t end = boot_status_off(fap);
+#endif /* MCUBOOT_OVERWRITE_ONLY */
+        while (off < end)
+        {
+            rc = flash_area_read(fap, off, &data, sizeof(data));
+            if (rc)
+            {
+                BOOT_LOG_INF("read failed %x ", off);
+                return rc;
+            }
+            if (data != 0xffffffffffffffff)
+            {
+                BOOT_LOG_INF("data wrong at %x", off);
+                return -1;
+            }
+            off += sizeof(data);
+        }
+    }
+#endif /* !defined(MCUBOOT_PRIMARY_ONLY) */
     return 0;
 }

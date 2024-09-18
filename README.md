@@ -1,10 +1,6 @@
 # [mcuboot](http://mcuboot.com/)
 
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/12307/badge.svg)][coverity]
-[![Build/Test](https://img.shields.io/travis/JuulLabs-OSS/mcuboot/master.svg?label=travis-ci)][travis]
-
-[coverity]: https://scan.coverity.com/projects/mcuboot
-[travis]: https://travis-ci.org/JuulLabs-OSS/mcuboot
+![latest tag](https://img.shields.io/github/v/tag/STMicroelectronics/stm32-mw-mcuboot.svg?color=brightgreen)
 
 This is mcuboot version 1.5.0
 
@@ -18,6 +14,10 @@ hardware porting layers from the operating. Currently, mcuboot works
 with both the Apache Mynewt and Zephyr operating systems, but more
 ports are planned in the future. RIOT is currently supported as a boot
 target with a complete port planned.
+
+## Release note
+
+Details about the updates made by STMicroelectronics are available in the release note [here](https://github.com/STMicroelectronics/stm32-mw-mcuboot/blob/main/st_readme.txt).
 
 ## Using MCUboot
 
@@ -61,4 +61,3 @@ Developers welcome!
   https://groups.io/g/mcuboot
 * Our Slack channel: https://mcuboot.slack.com/ <br />
   Get your invite [here!](https://join.slack.com/t/mcuboot/shared_invite/MjE2NDcwMTQ2MTYyLTE1MDA4MTIzNTAtYzgyZTU0NjFkMg)
-* Our IRC channel: http://irc.freenode.net, #mcuboot
