@@ -16,6 +16,10 @@
   ******************************************************************************
   @endverbatim
 
+### 18-March-2024 ###
+========================
+    + Improvement of primary only mode
+
 ### 14-February-2024 ###
 ========================
     + Add MCUBOOT_FLASH_HOMOGENOUS to optimize trailer use
