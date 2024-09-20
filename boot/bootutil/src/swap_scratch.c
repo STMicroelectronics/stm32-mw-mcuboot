@@ -1,5 +1,8 @@
 /*
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (c) 2019 JUUL Labs
+ * Copyright (c) 2023 STMicroelectronics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +17,6 @@
  * limitations under the License.
  */
 
-#include <assert.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <inttypes.h>
@@ -79,7 +81,10 @@ done:
     flash_area_close(fap);
     return rc;
 }
-#if !defined(MCUBOOT_PRIMARY_ONLY)
+#if !defined(MCUBOOT_DIRECT_XIP) && !defined(MCUBOOT_RAM_LOAD) && !defined(MCUBOOT_PRIMARY_ONLY)
+int
+swap_read_status_bytes(const struct flash_area *fap,
+        struct boot_loader_state *state, struct boot_status *bs);
 /**
  * Reads the status of a partially-completed swap, if any.  This is necessary
  * to recover in case the boot lodaer was reset in the middle of a swap
@@ -108,13 +113,18 @@ swap_read_status_bytes(const struct flash_area *fap,
     found_idx = 0;
     invalid = 0;
     for (i = 0; i < max_entries; i++) {
-        rc = flash_area_read_is_empty(fap, off + i * BOOT_WRITE_SZ(state),
+        rc = flash_area_read(fap, off + i * BOOT_WRITE_SZ(state),
                 &status, 1);
         if (rc < 0) {
             return BOOT_EFLASH;
         }
 
-        if (rc == 1) {
+#ifdef MCUBOOT_USE_MCE
+        if (bootutil_buffer_is_erased(fap->fa_off + off + i * BOOT_WRITE_SZ(state),
+                                      fap, &status, 1)) {
+#else /* not MCUBOOT_USE_MCE */
+        if (bootutil_buffer_is_erased(fap, &status, 1)) {
+#endif /* MCUBOOT_USE_MCE */
             if (found && !found_idx) {
                 found_idx = i;
             }
@@ -349,7 +359,8 @@ static const struct boot_status_table boot_status_tables[] = {
 
 #define BOOT_STATUS_TABLES_COUNT \
     (sizeof boot_status_tables / sizeof boot_status_tables[0])
-
+int
+swap_status_source(struct boot_loader_state *state);
 /**
  * Determines where in flash the most recent boot status is stored. The boot
  * status is necessary for completing a swap that was interrupted by a boot
@@ -364,9 +375,6 @@ swap_status_source(struct boot_loader_state *state)
     const struct boot_status_table *table;
     struct boot_swap_state state_scratch;
     struct boot_swap_state state_primary_slot;
-#ifdef NDEBUG
-    __attribute__((unused))
-#endif
     int rc;
     size_t i;
     uint8_t source;
@@ -379,6 +387,7 @@ swap_status_source(struct boot_loader_state *state)
     image_index = BOOT_CURR_IMG(state);
     rc = boot_read_swap_state_by_id(FLASH_AREA_IMAGE_PRIMARY(image_index),
             &state_primary_slot);
+    (void)rc;
     assert(rc == 0);
 
     rc = boot_read_swap_state_by_id(FLASH_AREA_IMAGE_SCRATCH, &state_scratch);
@@ -542,7 +551,7 @@ boot_swap_sectors(int idx, uint32_t sz, struct boot_loader_state *state,
             /* Write a trailer to the scratch area, even if we don't need the
              * scratch area for status.  We need a temporary place to store the
              * `swap-type` while we erase the primary trailer.
-             */ 
+             */
             rc = swap_status_init(state, fap_scratch, bs);
             assert(rc == 0);
 
@@ -656,7 +665,9 @@ boot_swap_sectors(int idx, uint32_t sz, struct boot_loader_state *state,
         BOOT_STATUS_ASSERT(rc == 0);
 
         if (erase_scratch) {
-            rc = boot_erase_region(fap_scratch, 0, sz);
+            rc = boot_erase_region(fap_scratch,
+                    state->scratch.sectors[state->scratch.num_sectors - 1].fs_off - state->scratch.sectors[0].fs_off,
+                    state->scratch.sectors[state->scratch.num_sectors - 1].fs_size);
             assert(rc == 0);
         }
     }
@@ -710,10 +721,24 @@ swap_run(struct boot_loader_state *state, struct boot_status *bs,
         last_idx_secondary_slot++;
     }
 
+#if defined(__ICCARM__)
+    BOOT_LOG_INF("Swapping secondary and primary slots: 0x%x bytes", copy_size);
+#else /* __ICCARM__ */
+    BOOT_LOG_INF("Swapping secondary and primary slots: 0x%lx bytes", (long unsigned int)copy_size);
+#endif /* __ICCARM__ */
+
     swap_idx = 0;
     while (last_sector_idx >= 0) {
         sz = boot_copy_sz(state, last_sector_idx, &first_sector_idx);
         if (swap_idx >= (bs->idx - BOOT_STATUS_IDX_0)) {
+#if defined(__ICCARM__)
+            BOOT_LOG_INF("Swapping: swap index 0x%x, sector index 0x%x, size 0x%x",
+                         swap_idx, first_sector_idx, sz);
+#else /* __ICCARM__ */
+            BOOT_LOG_INF("Swapping: swap index 0x%lx, sector index 0x%lx, size 0x%lx",
+                         (long unsigned int)swap_idx, (long unsigned int)first_sector_idx,
+                         (long unsigned int)sz);
+#endif /* __ICCARM__ */
             boot_swap_sectors(first_sector_idx, sz, state, bs);
         }
 
@@ -722,6 +747,8 @@ swap_run(struct boot_loader_state *state, struct boot_status *bs,
     }
 
 }
-#endif
-#endif
-#endif
+#endif /* !MCUBOOT_OVERWRITE_ONLY */
+
+#endif /* !MCUBOOT_DIRECT_XIP && !MCUBOOT_RAM_LOAD && !defined(MCUBOOT_PRIMARY_ONLY) */
+
+#endif /* !MCUBOOT_SWAP_USING_MOVE */

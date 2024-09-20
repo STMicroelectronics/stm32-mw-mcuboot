@@ -1,4 +1,13 @@
 /*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright (c) 2017-2019 Linaro LTD
+ * Copyright (c) 2016-2019 JUUL Labs
+ * Copyright (c) 2019-2020 Arm Limited
+ * Copyright (c) 2023 STMicroelectronics
+ *
+ * Original license:
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -17,11 +26,6 @@
  * under the License.
  */
 
-/*
- * Modifications are Copyright (c) 2019 Arm Limited.
- */
-
-#include <assert.h>
 #include <string.h>
 #include <inttypes.h>
 #include <stddef.h>
@@ -33,38 +37,15 @@
 #include "bootutil/bootutil.h"
 #include "bootutil_priv.h"
 #include "bootutil/bootutil_log.h"
+#include "bootutil/fault_injection_hardening.h"
 #ifdef MCUBOOT_ENC_IMAGES
 #include "bootutil/enc_key.h"
 #endif
+#ifdef MCUBOOT_USE_MCE
+#include "boot_hal_mce.h"
+#endif /* MCUBOOT_USE_MCE */
 
 MCUBOOT_LOG_MODULE_DECLARE(mcuboot);
-
-/**
- * @brief Determine if the data at two memory addresses is equal
- *
- * @param s1    The first memory region to compare.
- * @param s2    The second memory region to compare.
- * @param n     The amount of bytes to compare.
- *
- * @note        This function does not comply with the specification of memcmp,
- *              so should not be considered a drop-in replacement.
- *
- * @return      0 if memory regions are equal.
- */
-uint32_t boot_secure_memequal(const void *s1, const void *s2, size_t n)
-{
-    size_t i;
-    uint8_t *s1_p = (uint8_t*) s1;
-    uint8_t *s2_p = (uint8_t*) s2;
-    uint32_t ret = 0;
-
-    for (i = 0; i < n; i++) {
-        ret |= (s1_p[i] ^ s2_p[i]);
-    }
-
-    return ret;
-}
-
 #if !defined(MCUBOOT_PRIMARY_ONLY)
 /* Currently only used by imgmgr */
 int boot_current_slot;
@@ -129,11 +110,55 @@ static const struct boot_swap_table boot_swap_tables[] = {
 
 #define BOOT_SWAP_TABLES_COUNT \
     (sizeof boot_swap_tables / sizeof boot_swap_tables[0])
+#endif  /* !defined(MCUBOOT_PRIMARY_ONLY)  */
+/**
+ * @brief Determine if the data at two memory addresses is equal
+ *
+ * @param s1    The first  memory region to compare.
+ * @param s2    The second memory region to compare.
+ * @param n     The amount of bytes to compare.
+ *
+ * @note        This function does not comply with the specification of memcmp,
+ *              so should not be considered a drop-in replacement. It has no
+ *              constant time execution. The point is to make sure that all the
+ *              bytes are compared and detect if loop was abused and some cycles
+ *              was skipped due to fault injection.
+ *
+ * @return      FIH_SUCCESS if memory regions are equal, otherwise FIH_FAILURE
+ */
+#ifdef MCUBOOT_FIH_PROFILE_OFF
+inline
+fih_int boot_fih_memequal(const void *s1, const void *s2, size_t n)
+{
+    return memcmp(s1, s2, n);
+}
+#else
+fih_int boot_fih_memequal(const void *s1, const void *s2, size_t n)
+{
+    size_t i;
+    uint8_t *s1_p = (uint8_t*) s1;
+    uint8_t *s2_p = (uint8_t*) s2;
+    fih_int ret = FIH_FAILURE;
 
+    for (i = 0; i < n; i++) {
+        if (s1_p[i] != s2_p[i]) {
+            goto out;
+        }
+    }
+    if (i == n) {
+        ret = FIH_SUCCESS;
+    }
+
+out:
+    FIH_RET(ret);
+}
+#endif
+
+#if !defined(MCUBOOT_PRIMARY_ONLY)
 static int
 boot_magic_decode(const uint32_t *magic)
 {
-    if (boot_secure_memequal(magic, boot_img_magic, BOOT_MAGIC_SZ) == 0) {
+    if (memcmp(magic, boot_img_magic, BOOT_MAGIC_SZ) == 0) {
         return BOOT_MAGIC_GOOD;
     }
     return BOOT_MAGIC_BAD;
@@ -275,6 +300,55 @@ boot_enc_key_off(const struct flash_area *fap, uint8_t slot)
 }
 #endif
 
+#ifdef MCUBOOT_USE_MCE
+bool bootutil_buffer_is_erased(uint32_t off,
+                               const struct flash_area *area,
+                               const void *buffer, size_t len)
+{
+    size_t i;
+    uint8_t *u8b;
+    uint8_t erased_val;
+
+    if (buffer == NULL || len == 0) {
+        return false;
+    }
+
+    erased_val = flash_area_erased_val(area);
+    if (boot_is_in_primary(area->fa_id, off, len)) {
+        return boot_is_in_primary_and_erased(area->fa_id, off, len, erased_val);
+    } else {
+        for (i = 0, u8b = (uint8_t *)buffer; i < len; i++) {
+            if (u8b[i] != erased_val) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+#else /* not MCUBOOT_USE_MCE */
+bool bootutil_buffer_is_erased(const struct flash_area *area,
+                               const void *buffer, size_t len)
+{
+    size_t i;
+    uint8_t *u8b;
+    uint8_t erased_val;
+
+    if (buffer == NULL || len == 0) {
+        return false;
+    }
+
+    erased_val = flash_area_erased_val(area);
+    for (i = 0, u8b = (uint8_t *)buffer; i < len; i++) {
+        if (u8b[i] != erased_val) {
+            return false;
+        }
+    }
+
+    return true;
+}
+#endif /* MCUBOOT_USE_MCE */
+
 int
 boot_read_swap_state(const struct flash_area *fap,
                      struct boot_swap_state *state)
@@ -285,18 +359,22 @@ boot_read_swap_state(const struct flash_area *fap,
     int rc;
 
     off = boot_magic_off(fap);
-    rc = flash_area_read_is_empty(fap, off, magic, BOOT_MAGIC_SZ);
+    rc = flash_area_read(fap, off, magic, BOOT_MAGIC_SZ);
     if (rc < 0) {
         return BOOT_EFLASH;
     }
-    if (rc == 1) {
+#ifdef MCUBOOT_USE_MCE
+    if (bootutil_buffer_is_erased(fap->fa_off + off, fap, magic, BOOT_MAGIC_SZ)) {
+#else /* not MCUBOOT_USE_MCE */
+    if (bootutil_buffer_is_erased(fap, magic, BOOT_MAGIC_SZ)) {
+#endif /* MCUBOOT_USE_MCE */
         state->magic = BOOT_MAGIC_UNSET;
     } else {
         state->magic = boot_magic_decode(magic);
     }
 
     off = boot_swap_info_off(fap);
-    rc = flash_area_read_is_empty(fap, off, &swap_info, sizeof swap_info);
+    rc = flash_area_read(fap, off, &swap_info, sizeof swap_info);
     if (rc < 0) {
         return BOOT_EFLASH;
     }
@@ -305,30 +383,47 @@ boot_read_swap_state(const struct flash_area *fap,
     state->swap_type = BOOT_GET_SWAP_TYPE(swap_info);
     state->image_num = BOOT_GET_IMAGE_NUM(swap_info);
 
-    if (rc == 1 || state->swap_type > BOOT_SWAP_TYPE_REVERT) {
+#ifdef MCUBOOT_USE_MCE
+    if (bootutil_buffer_is_erased(fap->fa_off + off, fap, &swap_info, sizeof swap_info) ||
+#else /* not MCUBOOT_USE_MCE */
+    if (bootutil_buffer_is_erased(fap, &swap_info, sizeof swap_info) ||
+#endif /* MCUBOOT_USE_MCE */
+            state->swap_type > BOOT_SWAP_TYPE_REVERT) {
         state->swap_type = BOOT_SWAP_TYPE_NONE;
         state->image_num = 0;
     }
 
     off = boot_copy_done_off(fap);
-    rc = flash_area_read_is_empty(fap, off, &state->copy_done,
-            sizeof state->copy_done);
+    rc = flash_area_read(fap, off, &state->copy_done, sizeof state->copy_done);
     if (rc < 0) {
         return BOOT_EFLASH;
     }
-    if (rc == 1) {
+#ifdef MCUBOOT_USE_MCE
+    if (bootutil_buffer_is_erased(fap->fa_off + off,
+                                  fap, &state->copy_done,
+                                  sizeof state->copy_done)) {
+#else /* not MCUBOOT_USE_MCE */
+    if (bootutil_buffer_is_erased(fap, &state->copy_done,
+                sizeof state->copy_done)) {
+#endif /* MCUBOOT_USE_MCE */
         state->copy_done = BOOT_FLAG_UNSET;
     } else {
         state->copy_done = boot_flag_decode(state->copy_done);
     }
 
     off = boot_image_ok_off(fap);
-    rc = flash_area_read_is_empty(fap, off, &state->image_ok,
-                                  sizeof state->image_ok);
+    rc = flash_area_read(fap, off, &state->image_ok, sizeof state->image_ok);
     if (rc < 0) {
         return BOOT_EFLASH;
     }
-    if (rc == 1) {
+#ifdef MCUBOOT_USE_MCE
+    if (bootutil_buffer_is_erased(fap->fa_off + off,
+                                  fap, &state->image_ok,
+                                  sizeof state->image_ok)) {
+#else /* MCUBOOT_USE_MCE */
+    if (bootutil_buffer_is_erased(fap, &state->image_ok,
+                sizeof state->image_ok)) {
+#endif /* MCUBOOT_USE_MCE */
         state->image_ok = BOOT_FLAG_UNSET;
     } else {
         state->image_ok = boot_flag_decode(state->image_ok);
@@ -400,7 +495,7 @@ boot_find_status(int image_index, const struct flash_area **fap)
             return rc;
         }
 
-        if (boot_secure_memequal(magic, boot_img_magic, BOOT_MAGIC_SZ) == 0) {
+        if (memcmp(magic, boot_img_magic, BOOT_MAGIC_SZ) == 0) {
             return 0;
         }
 
@@ -743,11 +838,12 @@ boot_set_pending(int permanent)
 }
 
 /**
- * Marks the image in the primary slot as confirmed.  The system will continue
+ * Marks All images in the primary slot as confirmed.  The system will continue
  * booting into the image in the primary slot until told to boot from a
  * different slot.
  *
  * @return                  0 on success; nonzero on failure.
+ *                          if one image cannot be confirmed, failure is returned
  */
 int
 boot_set_confirmed(void)
@@ -755,48 +851,46 @@ boot_set_confirmed(void)
     const struct flash_area *fap;
     struct boot_swap_state state_primary_slot;
     int rc;
+    int image_index;
+    for (image_index = 0; image_index < MCUBOOT_IMAGE_NUMBER; image_index++)
+    {
+        rc = boot_read_swap_state_by_id(FLASH_AREA_IMAGE_PRIMARY(image_index),
+                &state_primary_slot);
+        if (rc != 0) {
+            return rc;
+        }
+        switch (state_primary_slot.magic) {
+        case BOOT_MAGIC_GOOD:
+            /* Confirm needed; proceed. */
+            rc = flash_area_open(FLASH_AREA_IMAGE_PRIMARY(image_index), &fap);
+            if (rc) {
+                rc = BOOT_EFLASH;
+                goto done;
+            }
 
-    rc = boot_read_swap_state_by_id(FLASH_AREA_IMAGE_PRIMARY(0),
-                                    &state_primary_slot);
-    if (rc != 0) {
-        return rc;
+            if (state_primary_slot.copy_done == BOOT_FLAG_UNSET) {
+                /* Swap never completed.  This is unexpected. */
+                rc = BOOT_EBADVECT;
+                goto done;
+            }
+
+            if (state_primary_slot.image_ok == BOOT_FLAG_UNSET) {
+                rc = boot_write_image_ok(fap);
+                if (rc)
+                    goto done;
+            }
+            flash_area_close(fap);
+            break;
+        case BOOT_MAGIC_UNSET:
+            /* nothing to do */
+            break;
+        case BOOT_MAGIC_BAD:
+            /* Unexpected state. */
+            return BOOT_EBADVECT;
+        }
     }
-
-    switch (state_primary_slot.magic) {
-    case BOOT_MAGIC_GOOD:
-        /* Confirm needed; proceed. */
-        break;
-
-    case BOOT_MAGIC_UNSET:
-        /* Already confirmed. */
-        return 0;
-
-    case BOOT_MAGIC_BAD:
-        /* Unexpected state. */
-        return BOOT_EBADVECT;
-    }
-
-    rc = flash_area_open(FLASH_AREA_IMAGE_PRIMARY(0), &fap);
-    if (rc) {
-        rc = BOOT_EFLASH;
-        goto done;
-    }
-
-    if (state_primary_slot.copy_done == BOOT_FLAG_UNSET) {
-        /* Swap never completed.  This is unexpected. */
-        rc = BOOT_EBADVECT;
-        goto done;
-    }
-
-    if (state_primary_slot.image_ok != BOOT_FLAG_UNSET) {
-        /* Already confirmed. */
-        goto done;
-    }
-
-    rc = boot_write_image_ok(fap);
-
 done:
     flash_area_close(fap);
     return rc;
 }
-#endif
+#endif  /* !defined(MCUBOOT_PRIMARY_ONLY)  */

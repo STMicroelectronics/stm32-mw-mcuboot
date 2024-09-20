@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2018-2020 Arm Limited
+ * Copyright (c) 2018-2021 Arm Limited
  * Copyright (c) 2020 Linaro Limited
+ * Copyright (c) 2023 STMicroelectronics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +16,6 @@
  * limitations under the License.
  */
 
-#include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <limits.h>
@@ -45,17 +45,7 @@
  */
 static bool shared_memory_init_done;
 
-/**
- * @brief Add a data item to the shared data area between bootloader and
- *        runtime SW
- *
- * @param[in] major_type  TLV major type, identify consumer
- * @param[in] minor_type  TLV minor type, identify TLV type
- * @param[in] size        length of added data
- * @param[in] data        pointer to data
- *
- * @return                0 on success; nonzero on failure.
- */
+/* See in boot_record.h */
 int
 boot_add_data_to_shared_area(uint8_t        major_type,
                              uint16_t       minor_type,
@@ -66,6 +56,10 @@ boot_add_data_to_shared_area(uint8_t        major_type,
     struct shared_boot_data *boot_data;
     uint16_t boot_data_size;
     uintptr_t tlv_end, offset;
+
+    if (data == NULL) {
+        return SHARED_MEMORY_GEN_ERROR;
+    }
 
     boot_data = (struct shared_boot_data *)MCUBOOT_SHARED_DATA_BASE;
 
@@ -198,8 +192,12 @@ boot_save_boot_status(uint8_t sw_module,
         }
     }
 
+    /* If no boot record, no boot status saved (silently) */
+    if (!boot_record_found) {
+        return 0;
+    }
 
-    if (!boot_record_found || !hash_found) {
+    if (!hash_found) {
         return -1;
     }
 
@@ -211,6 +209,10 @@ boot_save_boot_status(uint8_t sw_module,
      * part of the boot record TLV). For this reason this field has been
      * filled with zeros during the image signing process.
      */
+    if (record_len < sizeof(image_hash)) {
+        return -1;
+    }
+
     offset = record_len - sizeof(image_hash);
     /* The size of 'buf' has already been checked when
      * the BOOT_RECORD TLV was read, it won't overflow.

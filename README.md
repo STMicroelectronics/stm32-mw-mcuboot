@@ -1,8 +1,11 @@
 # [mcuboot](http://mcuboot.com/)
 
 ![latest tag](https://img.shields.io/github/v/tag/STMicroelectronics/stm32-mw-mcuboot.svg?color=brightgreen)
+[![Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)][license]
 
-This is mcuboot version 1.5.0
+[license]: https://github.com/mcu-tools/mcuboot/blob/master/LICENSE
+
+This is mcuboot version 1.7.2
 
 MCUboot is a secure bootloader for 32-bit MCUs. The goal of MCUboot is to
 define a common infrastructure for the bootloader, system flash layout on
@@ -25,13 +28,14 @@ Instructions for different operating systems can be found here:
 - [Zephyr](docs/readme-zephyr.md)
 - [Mynewt](docs/readme-mynewt.md)
 - [RIOT](docs/readme-riot.md)
+- [Mbed-OS](docs/readme-mbed.md)
 
 ## Roadmap
 
 The issues being planned and worked on are tracked using GitHub issues. To
 participate please visit:
 
-[MCUBoot GitHub Issues](https://github.com/JuulLabs-OSS/mcuboot/issues)
+[MCUBoot GitHub Issues](https://github.com/mcu-tools/mcuboot/issues)
 
 ~~Issues were previously tracked on [MCUboot JIRA](https://runtimeco.atlassian.net/projects/MCUB/summary)
 , but it is now deprecated.~~
@@ -47,11 +51,6 @@ however, it is now deprecated and not currently maintained~~
 For more information in the source, here are some pointers:
 
 - [boot/bootutil](boot/bootutil): The core of the bootloader itself.
-- [boot/boot\_serial](boot/boot_serial): Support for serial upgrade within the bootloader itself.
-- [boot/zephyr](boot/zephyr): Port of the bootloader to Zephyr
-- [boot/mynewt](boot/mynewt): Mynewt bootloader app
-- [imgtool](scripts/imgtool.py): A tool to securely sign firmware images for booting by mcuboot.
-- [sim](sim): A bootloader simulator for testing and regression
 
 ## Joining
 
