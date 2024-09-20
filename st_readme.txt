@@ -16,6 +16,12 @@
   ******************************************************************************
   @endverbatim
 
+### 14-February-2024 ###
+========================
+    + Add MCUBOOT_FLASH_HOMOGENOUS to optimize trailer use
+    + Restore some files
+    + Update log of bootloader version
+
 ### 1-February-2024 ###
 ========================
     + Update log of bootloader version
