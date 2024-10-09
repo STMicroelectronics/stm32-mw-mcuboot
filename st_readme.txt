@@ -16,6 +16,11 @@
   ******************************************************************************
   @endverbatim
 
+### 09-October-2024 ###
+========================
+    + Fix stdio usage condition in bl2_main.c
+	+ Update README and documentation
+
 ### 05-September-2024 ###
 ========================
     + Display OEMuROT version in BootROM format
