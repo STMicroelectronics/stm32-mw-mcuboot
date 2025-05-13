@@ -16,10 +16,37 @@
   ******************************************************************************
   @endverbatim
 
+### 28-April-2025 ###
+====================
+    + imgtool python script delivered in the repo
+    + Update shared_data.c from TFM GitHub v2.1.0 with minor adaptations
+    + Provide AES CTR HW implementation fully relying on SAES HW capabilities
+    + Improve counter measures
+
+### 26-February-2025 ###
+========================
+    + Improve counter measures
+
+### 28-January-2025 ###
+========================
+    + Improve installation robustness
+
+### 15-January-2025 ###
+========================
+    + Improve the support of MCE
+
+### 18-December-2024 ###
+========================
+    + Add version logs under MCUBOOT_LOG_VERSION
+
+### 18-October-2024 ###
+========================
+    + Fix compilation warning for GCC compiler
+
 ### 09-October-2024 ###
 ========================
     + Fix stdio usage condition in bl2_main.c
-	+ Update README and documentation
+    + Update README and documentation
 
 ### 05-September-2024 ###
 ========================

@@ -62,10 +62,14 @@ static int bootutil_constant_time_compare(const uint8_t *a, const uint8_t *b, si
     const uint8_t *tempa = a;
     const uint8_t *tempb = b;
     uint8_t result = 0;
-    unsigned int i;
+    volatile unsigned int i;
 
     for (i = 0; i < size; i++) {
         result |= tempa[i] ^ tempb[i];
+    }
+    if (i != size) {
+        /* result forced to any non zero value */
+        result = 15;
     }
     return result;
 }
