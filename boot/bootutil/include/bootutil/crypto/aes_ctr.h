@@ -195,6 +195,49 @@ typedef struct
 }
 bootutil_aes_ctr_context;
 
+static inline int bootutil_aes_randomize_key_instance(CRYP_HandleTypeDef *hcryp)
+{
+    size_t size_check;
+    uint32_t random[8U];
+    const size_t sz = sizeof(uint32_t)*8U;
+
+    /* Randomize the key buffer before the key copy */
+    RNG_GetBytes((uint8_t *)random, sz, &size_check);
+
+    /* Verify that the key array has been properly initialized */
+    if (size_check != sz)
+    {
+        return -1;
+    }
+
+#if defined (CRYP)
+/* Cast required (void *Instance) for this HAL driver version */
+#define CRYP_INSTANCE ((SAES_TypeDef *)(hcryp->Instance))
+#elif defined (AES)
+#define CRYP_INSTANCE (hcryp->Instance)
+#endif /* CRYP */
+
+#if (BOOTUTIL_CRYPTO_AES_CTR_KEY_SIZE == 16U)
+    CRYP_INSTANCE->KEYR0 = random[0];
+    CRYP_INSTANCE->KEYR1 = random[1];
+    CRYP_INSTANCE->KEYR2 = random[2];
+    CRYP_INSTANCE->KEYR3 = random[3];
+#elif (BOOTUTIL_CRYPTO_AES_CTR_KEY_SIZE == 32U)
+    CRYP_INSTANCE->KEYR0 = random[0];
+    CRYP_INSTANCE->KEYR1 = random[1];
+    CRYP_INSTANCE->KEYR2 = random[2];
+    CRYP_INSTANCE->KEYR3 = random[3];
+    CRYP_INSTANCE->KEYR4 = random[4];
+    CRYP_INSTANCE->KEYR5 = random[5];
+    CRYP_INSTANCE->KEYR6 = random[6];
+    CRYP_INSTANCE->KEYR7 = random[7];
+#else
+#error "AES key size not supported"
+#endif /* BOOTUTIL_CRYPTO_AES_CTR_KEY_SIZE */
+
+    return 0;
+}
+
 /* Private macro -------------------------------------------------------------*/
 /*
  * 32-bit integer manipulation macros (big endian)
@@ -215,8 +258,19 @@ static int aes_setkey( bootutil_aes_ctr_context *ctx,
 {
     unsigned int i;
     int ret = 0;
+    size_t size_check;
 
     INPUT_VALIDATE_RET( ctx != NULL );
+
+    /* Randomize the key buffer before the key copy */
+    RNG_GetBytes((uint8_t *)ctx->aes_key, sizeof(ctx->aes_key), &size_check);
+
+    /* Verify that the key array has been properly initialized */
+    if (size_check != sizeof(ctx->aes_key))
+    {
+        ret = ERR_PLATFORM_HW_ACCEL_FAILED;
+        goto exit;
+    }
 
     switch(keybits)
     {
@@ -241,13 +295,21 @@ static int aes_setkey( bootutil_aes_ctr_context *ctx,
 
 
     /* Set the common CRYP parameters */
+#if defined (SAES)
     ctx->hcryp_aes.Instance = SAES;
+#else
+    ctx->hcryp_aes.Instance = AES;
+#endif
     ctx->hcryp_aes.Init.KeyMode = CRYP_KEYMODE_NORMAL;
     ctx->hcryp_aes.Init.KeySelect = CRYP_KEYSEL_NORMAL;
     ctx->hcryp_aes.Init.Algorithm     = CRYP_AES_ECB;
 
-    /* Enable SAES clock */
+    /* Enable clock */
+#if defined (SAES)
     __HAL_RCC_SAES_CLK_ENABLE();
+#else
+    __HAL_RCC_AES_CLK_ENABLE();
+#endif
 
     if (HAL_CRYP_Init(&ctx->hcryp_aes) != HAL_OK)
     {
@@ -272,10 +334,17 @@ static inline void bootutil_aes_ctr_drop(bootutil_aes_ctr_context *ctx)
     INPUT_VALIDATE( ctx != NULL );
     if (ctx->hcryp_aes.Instance != NULL)
     {
-      HAL_CRYP_DeInit(&ctx->hcryp_aes);
+        if (HAL_CRYP_DeInit(&ctx->hcryp_aes) != HAL_OK)
+        {
+            Error_Handler();
+        }
     }
-    /* Disable SAES clock */
+/* Disable clock */
+#if defined (SAES)
     __HAL_RCC_SAES_CLK_DISABLE();
+#else
+    __HAL_RCC_AES_CLK_DISABLE();
+#endif
 }
 
 static inline int bootutil_aes_ctr_set_key(bootutil_aes_ctr_context *ctx, const uint8_t *k)
@@ -323,6 +392,11 @@ static int aes_crypt_ctr(bootutil_aes_ctr_context *ctx,
         return ERR_PLATFORM_HW_ACCEL_FAILED;
     }
 
+    if (bootutil_aes_randomize_key_instance(&ctx->hcryp_aes) != 0)
+    {
+        return ERR_PLATFORM_HW_ACCEL_FAILED;
+    }
+
     if (HAL_CRYP_Encrypt(&ctx->hcryp_aes, (uint32_t *)input, in_length, (uint32_t *)output, ST_AES_TIMEOUT) != HAL_OK)
     {
         return ERR_PLATFORM_HW_ACCEL_FAILED;
@@ -330,6 +404,11 @@ static int aes_crypt_ctr(bootutil_aes_ctr_context *ctx,
 
     if (last_bytes)
     {
+        if (bootutil_aes_randomize_key_instance(&ctx->hcryp_aes) != 0)
+        {
+            return ERR_PLATFORM_HW_ACCEL_FAILED;
+        }
+
         memset(work_buf, 0U, sizeof(work_buf));
         memcpy(work_buf, input + in_length, last_bytes);
         if (HAL_CRYP_Encrypt(&ctx->hcryp_aes, (uint32_t *)work_buf, 16U, (uint32_t *)(output + in_length),
@@ -370,6 +449,11 @@ static int aes_encrypt_ecb(bootutil_aes_ctr_context *ctx,
         /* Configure the CRYP  */
         if (HAL_CRYP_SetConfig(&ctx->hcryp_aes, &ctx->hcryp_aes.Init) != HAL_OK)
             return ERR_PLATFORM_HW_ACCEL_FAILED;
+    }
+
+    if (bootutil_aes_randomize_key_instance(&ctx->hcryp_aes) != 0)
+    {
+        return ERR_PLATFORM_HW_ACCEL_FAILED;
     }
 
     /* AES encryption */
@@ -436,7 +520,7 @@ static inline int bootutil_aes_ctr_encrypt(bootutil_aes_ctr_context *ctx,
                                            size_t blk_off,
                                            uint8_t *c)
 {
-    uint8_t stream_block[BOOTUTIL_CRYPTO_AES_CTR_BLOCK_SIZE];
+    uint8_t stream_block[BOOTUTIL_CRYPTO_AES_CTR_BLOCK_SIZE] = { 0U };
     int rc;
     rc = aes_crypt_ctr(ctx, mlen, &blk_off, counter, stream_block, m, c);
     memset(stream_block, 0, BOOTUTIL_CRYPTO_AES_CTR_BLOCK_SIZE);

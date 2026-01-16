@@ -57,6 +57,8 @@
 
 #include "mcuboot_config/mcuboot_config.h"
 
+#include "low_level_rng.h"
+
 #if defined(MCUBOOT_FIH_PROFILE_HIGH)
 
 #define FIH_ENABLE_DELAY         /* Requires an entropy source */

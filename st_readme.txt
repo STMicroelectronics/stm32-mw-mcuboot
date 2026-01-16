@@ -1,7 +1,7 @@
   @verbatim
   ******************************************************************************
   *
-  *         Portions COPYRIGHT 2016-2023 STMicroelectronics, All Rights Reserved
+  *         Portions COPYRIGHT 2016-2025 STMicroelectronics, All Rights Reserved
   *         Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
   *
   * @file    st_readme.txt 
@@ -15,6 +15,23 @@
   *
   ******************************************************************************
   @endverbatim
+
+### 22-July-2025 ###
+====================
+    + Randomize aes buffers before a copy UPDATE
+    + Reinforcement of the first installation process UPDATE
+    + Fix regression for H7RS OEMuRoT fast wake-up
+
+### 12-June-2025 ###
+====================
+    + Fix Reinforcement of the first installation process
+
+### 10-June-2025 ###
+====================
+    + Reinforcement of the first installation process
+    + Regularly boot_enc_zeroize for compatibility with SAES use to decrypt OBK
+    + Reinforce boot_validate_slot
+    + Randomize aes buffers before a copy
 
 ### 28-April-2025 ###
 ====================

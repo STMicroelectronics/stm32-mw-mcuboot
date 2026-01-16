@@ -740,6 +740,13 @@ boot_validate_slot(struct boot_loader_state *state, int slot,
         goto out;
     }
 
+    /* redundant function call to prevent from an area_id value corruption */
+    if (area_id != flash_area_id_from_multi_image_slot(BOOT_CURR_IMG(state), slot))
+    {
+        fih_rc = fih_int_encode(1);
+    }
+
+
 out:
     flash_area_close(fap);
 
@@ -1931,7 +1938,7 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
      */
     IMAGES_ITER(BOOT_CURR_IMG(state)) {
 
-#if defined(MCUBOOT_ENC_IMAGES) && ((BOOT_IMAGE_NUMBER > 1) || defined(MCUBOOT_ENC_SECURITY_CNT))
+#if defined(MCUBOOT_ENC_IMAGES)
         /* The keys used for encryption may no longer be valid (could belong to
          * another images). Therefore, mark them as invalid to force their reload
          * by boot_enc_load().
@@ -1995,6 +2002,9 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
 
         /* Check if primary slot contains a confirmed image */
         if ((swap_state.image_ok != BOOT_FLAG_UNSET) &&
+#ifdef MCUBOOT_NO_INITIAL_IMAGE_IN_PRIMARY
+            (swap_state.copy_done != BOOT_FLAG_UNSET) &&
+#endif /* MCUBOOT_NO_INITIAL_IMAGE_IN_PRIMARY */
             (boot_is_header_valid(boot_img_hdr(state, BOOT_PRIMARY_SLOT),
                                   BOOT_IMG_AREA(state, BOOT_PRIMARY_SLOT)))) {
             /* Image already confirmed. */
@@ -2044,7 +2054,6 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
      */
     IMAGES_ITER(BOOT_CURR_IMG(state)) {
 
-#if (BOOT_IMAGE_NUMBER > 1) || defined(MCUBOOT_ENC_SECURITY_CNT)
 #ifdef MCUBOOT_ENC_IMAGES
         /* The keys used for encryption may no longer be valid (could belong to
          * another images). Therefore, mark them as invalid to force their reload
@@ -2055,7 +2064,6 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
 
         /* Indicate that swap is not aborted */
         boot_status_reset(&bs);
-#endif /* (BOOT_IMAGE_NUMBER > 1) */
 
         /* Set the previously determined swap type */
         bs.swap_type = BOOT_SWAP_TYPE(state);

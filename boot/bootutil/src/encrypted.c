@@ -521,6 +521,16 @@ boot_enc_decrypt(const uint8_t *buf, uint8_t *enckey)
     size_t olen;
 #endif
     int rc = -1;
+    size_t size_check;
+
+    /* Randomize the key buffer before the key copy */
+    RNG_GetBytes((uint8_t *)derived_key, sizeof(derived_key), &size_check);
+
+    /* Verify that the key array has been properly initialized */
+    if (size_check != (sizeof(derived_key)))
+    {
+        return -1;
+    }
 
 #if defined(MCUBOOT_ENCRYPT_RSA)
     bootutil_rsa_init(&rsa, BOOTUTIL_RSA_PKCS_V21, BOOTUTIL_MD_SHA256);
@@ -623,7 +633,6 @@ boot_enc_decrypt(const uint8_t *buf, uint8_t *enckey)
 #endif /* defined(MCUBOOT_ENCRYPT_X25519) */
 
 #if defined(MCUBOOT_ENCRYPT_EC256) || defined(MCUBOOT_ENCRYPT_X25519)
-
     /*
      * Expand shared secret to create keys for AES-128-CTR + HMAC-SHA256
      */

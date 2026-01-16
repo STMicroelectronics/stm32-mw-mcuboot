@@ -9,7 +9,6 @@
 
 #ifdef FIH_ENABLE_DELAY
 
-#include "low_level_rng.h"
 #include "boot_hal_flowcontrol.h"
 
 /* Mbedtls implementation of the delay RNG (based on a DRGB) is replaced by

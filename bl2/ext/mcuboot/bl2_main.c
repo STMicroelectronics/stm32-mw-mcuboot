@@ -114,6 +114,9 @@ int main(void)
 #if defined(BOOTROM_FORMAT)
     uint32_t *version = (uint32_t*)(BL2_CODE_START - BOOTROM_HEADER_SIZE + BOOTROM_VERSION_OFFSET);
     BOOT_LOG_INF("Starting bootloader OEMuROT %08x", (unsigned int)*version);
+#elif defined(BL2_RAM_BASE)
+    struct image_header *hdr = (struct image_header *)(BL2_RAM_BASE);
+    BOOT_LOG_INF("Starting bootloader OEMuROT %x.%x.%x",hdr->ih_ver.iv_major, hdr->ih_ver.iv_minor, hdr->ih_ver.iv_revision);
 #else
     struct image_header *hdr = (struct image_header *)(FLASH_BASE + FLASH_AREA_BL2_OFFSET);
     BOOT_LOG_INF("Starting bootloader OEMuROT %x.%x.%x",hdr->ih_ver.iv_major, hdr->ih_ver.iv_minor, hdr->ih_ver.iv_revision);
