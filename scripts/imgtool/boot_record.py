@@ -1,5 +1,8 @@
-# Copyright (c) 2019, Arm Limited.
+# Copyright (c) 2019-2024, Arm Limited.
 # Copyright (c) 2020, Linaro Limited
+# Copyright 2020-2026 STMicroelectronics
+#
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +17,11 @@
 # limitations under the License.
 
 from enum import Enum
-from imgtool.cbor import cbor
+
+try:
+    from cbor2 import dumps
+except ImportError:
+    from cbor import dumps
 
 
 class SwComponent(int, Enum):
@@ -29,18 +36,18 @@ class SwComponent(int, Enum):
     MEASUREMENT_DESCRIPTION = 6
 
 
-def create_sw_component_data(sw_type, sw_version, sw_measurement_description, sw_measurement_value, sw_signer_id):
-
+def create_sw_component_data(sw_type, sw_version, sw_measurement_description,
+                             sw_measurement_value, sw_signer_id):
     # List of software component properties (Key ID + value)
-    properties = {
-        SwComponent.TYPE: sw_type,
-        SwComponent.VERSION: sw_version,
-        SwComponent.SIGNER_ID: sw_signer_id,
-        SwComponent.MEASUREMENT_DESCRIPTION: sw_measurement_description,
-    }
+    properties = {SwComponent.TYPE: sw_type,
+                  SwComponent.VERSION: sw_version,
+                  SwComponent.SIGNER_ID: sw_signer_id,
+                  SwComponent.MEASUREMENT_DESCRIPTION: sw_measurement_description,
+                  SwComponent.MEASUREMENT_VALUE: sw_measurement_value,
+                  }
 
     # Note: The measurement value must be the last item of the property
     #       list because later it will be modified by the bootloader.
-    properties[SwComponent.MEASUREMENT_VALUE] = sw_measurement_value
-
-    return cbor.dumps(properties)
+    last_key = list(properties.keys())[-1]
+    assert SwComponent.MEASUREMENT_VALUE == last_key, 'Measurement value is not the last item of the property list'
+    return dumps(properties)

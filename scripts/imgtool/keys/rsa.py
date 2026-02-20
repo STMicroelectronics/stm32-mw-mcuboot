@@ -1,6 +1,8 @@
 """
 RSA Key management
 """
+# Copyright 2020-2026 STMicroelectronics
+# SPDX-License-Identifier: Apache-2.0
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -9,6 +11,7 @@ from cryptography.hazmat.primitives.asymmetric.padding import PSS, MGF1
 from cryptography.hazmat.primitives.hashes import SHA256
 from cryptography.exceptions import InvalidSignature
 from .general import KeyClass
+from .privatebytes import PrivateBytesMixin
 
 
 # Sizes that bootutil will recognize
@@ -52,7 +55,12 @@ class RSAPublic(KeyClass):
                 encoding=serialization.Encoding.DER,
                 format=serialization.PublicFormat.PKCS1)
 
-    def get_private_bytes(self, minimal):
+    def get_public_pem(self):
+        return self._get_public().public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo)
+
+    def get_private_bytes(self, minimal, format):
         self._unsupported('get_private_bytes')
 
     def export_private(self, path, passwd=None):
@@ -75,12 +83,10 @@ class RSAPublic(KeyClass):
     def sig_len(self):
         return self.key_size() / 8
 
-    def verify(self, signature, payload, digest, header_size, img_size):
+    def verify(self, signature, payload, digest=None, header_size=None, img_size=None):
         k = self.key
         if isinstance(self.key, rsa.RSAPrivateKey):
             k = self.key.public_key()
-            #signature = self.key.sign(payload, padding=RSAPublic.padding(), algorithm=SHA256())
-            #signature=self.sign(payload)
         try:
             k.verify(
                     signature,
@@ -91,7 +97,7 @@ class RSAPublic(KeyClass):
         except InvalidSignature as e:
             raise e
 
-class RSA(RSAPublic):
+class RSA(RSAPublic, PrivateBytesMixin):
     """
     Wrapper around an RSA key, with imgtool support.
     """
@@ -154,11 +160,13 @@ class RSA(RSAPublic):
         b[3] = (off - 4) & 0xff
         return b[:off]
 
-    def get_private_bytes(self, minimal):
-        priv = self.key.private_bytes(
-                encoding=serialization.Encoding.DER,
-                format=serialization.PrivateFormat.TraditionalOpenSSL,
-                encryption_algorithm=serialization.NoEncryption())
+    _VALID_FORMATS = {
+        'openssl': serialization.PrivateFormat.TraditionalOpenSSL
+    }
+    _DEFAULT_FORMAT = 'openssl'
+
+    def get_private_bytes(self, minimal, format):
+        _, priv = self._get_private_bytes(minimal, format, RSAUsageError)
         if minimal:
             priv = self._build_minimal_rsa_privkey(priv)
         return priv
@@ -180,8 +188,7 @@ class RSA(RSAPublic):
     def sign(self, payload):
         # The verification code only allows the salt length to be the
         # same as the hash length, 32.
-        sig=self.key.sign(
+        return self.key.sign(
                 data=payload,
                 padding=RSAPublic.padding(),
                 algorithm=SHA256())
-        return sig

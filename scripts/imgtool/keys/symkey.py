@@ -1,8 +1,10 @@
 """
 SYM Key management
 """
+# Copyright 2020-2026 STMicroelectronics
+# SPDX-License-Identifier: Apache-2.0
+
 import os
-import sys
 from .general import KeyClass
 
 class SYMKEYUsageError(Exception):

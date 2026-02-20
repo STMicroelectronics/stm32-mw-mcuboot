@@ -16,6 +16,10 @@
   ******************************************************************************
   @endverbatim
 
+### 16-February-2026 ###
+========================
+    + update imgtool python script version (aligned with TPC v2.22.0)
+
 ### 22-July-2025 ###
 ====================
     + Randomize aes buffers before a copy UPDATE

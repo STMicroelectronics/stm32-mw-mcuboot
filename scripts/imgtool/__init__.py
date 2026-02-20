@@ -1,4 +1,7 @@
 # Copyright 2017-2020 Linaro Limited
+# Copyright 2020-2026 STMicroelectronics
+#
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,5 +15,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-imgtool_version = "1.7.2"
-imgtool_build="3"
+imgtool_version = "2.1.0.2"

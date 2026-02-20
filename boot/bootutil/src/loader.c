@@ -2002,9 +2002,6 @@ context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp)
 
         /* Check if primary slot contains a confirmed image */
         if ((swap_state.image_ok != BOOT_FLAG_UNSET) &&
-#ifdef MCUBOOT_NO_INITIAL_IMAGE_IN_PRIMARY
-            (swap_state.copy_done != BOOT_FLAG_UNSET) &&
-#endif /* MCUBOOT_NO_INITIAL_IMAGE_IN_PRIMARY */
             (boot_is_header_valid(boot_img_hdr(state, BOOT_PRIMARY_SLOT),
                                   BOOT_IMG_AREA(state, BOOT_PRIMARY_SLOT)))) {
             /* Image already confirmed. */
