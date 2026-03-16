@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stm32="https://developer.st.com/schemas/stm32cube/1.0.0" schemaVersion="1.7.55" xsi:noNamespaceSchemaLocation="PACK.xsd" xsi:schemaLocation="https://developer.st.com/schemas/stm32cube/1.0.0 stm32cube.xsd" Dvendor="STMicroelectronics:13" Dname="STM32*">
+  <vendor>STMicroelectronics</vendor>
+  <name>mcuboot</name>
+  <environments>
+    <environment name="STM32Cube">
+      <stm32:pack type="MW" friendlyName="mcuboot" shortDesc="MCUboot middleware for STM32">
+        <relocation-info parent="middleware" layer="" element=""/>
+      </stm32:pack>
+    </environment>
+  </environments>
+  <description>MCUboot SW pack</description>
+  <ECCN>
+    <ECCN-EU>NEC</ECCN-EU>
+    <ECCN-US>EAR99</ECCN-US>
+  </ECCN>
+  <changelogs>
+    <changelog id="release_notes_entry_point" name="ST_Release_Notes.html"/>
+  </changelogs>
+  <url>https://developer.st.com/st-pack-server/api/v1/pack/</url>
+  <repository type="git">https://github.com/STMicroelectronics/stm32-mw-mcuboot/tree/hal2</repository>
+  <supportContact/>
+  <releases>
+    <release version="2.0.0" date="2026-02-10">
+      - First release of MCUboot SW pack
+    </release>
+  </releases>
+  <license>LICENSE.html</license>
+  <keywords>
+    <keyword>STMicroelectronics</keyword>
+    <keyword>ST</keyword>
+    <keyword>STM32</keyword>
+    <keyword>Security</keyword>
+    <keyword>mcuboot</keyword>
+    <keyword>Boot path</keyword>
+    <keyword>Root Of Trust</keyword>
+  </keywords>
+  <!-- Conditions -->
+  <conditions>
+    <condition id="MCUboot Platform Common Condition">
+      <description>Ensure Platform Common was selected before</description>
+      <require Cclass="Security" Cgroup="MCUboot" Csub="Platform Common"/>
+    </condition>
+  </conditions>
+  <!-- Components definition -->
+  <components>
+    <component Cclass="Security" Cgroup="MCUboot" Csub="Core" Cversion="1.0.0" condition="MCUboot Platform Common Condition">
+      <description>MCUboot Core component</description>
+      <Pre_Include_Global_h>
+#define MCUBOOT_DOUBLE_SIGN_VERIF
+      </Pre_Include_Global_h>
+      <files>
+        <file category="include" name="boot/bootutil/include/"/>
+        <file category="header" name="boot/bootutil/include/bootutil/boot_hooks.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/boot_public_hooks.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/boot_record.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/bootutil.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/bootutil_log.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/bootutil_public.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/caps.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/aes_ctr.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/aes_kw.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/common.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/ecdh_p256.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/ecdh_x25519.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/ecdsa.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/hmac_sha256.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/rsa.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/crypto/sha.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/enc_key.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/enc_key_public.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/fault_injection_hardening.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/fault_injection_hardening_delay_rng.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/ignore.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/image.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/mcuboot_status.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/ramload.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/security_cnt.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/sign_key.h"/>
+        <file category="source" name="boot/bootutil/src/boot_record.c"/>
+        <file category="source" name="boot/bootutil/src/bootutil_misc.c"/>
+        <file category="header" name="boot/bootutil/src/bootutil_misc.h"/>
+        <file category="header" name="boot/bootutil/src/bootutil_priv.h"/>
+        <file category="source" name="boot/bootutil/src/bootutil_public.c"/>
+        <file category="source" name="boot/bootutil/src/caps.c"/>
+        <file category="source" name="boot/bootutil/src/encrypted.c"/>
+        <file category="source" name="boot/bootutil/src/fault_injection_hardening.c"/>
+        <file category="source" name="boot/bootutil/src/fault_injection_hardening_delay_rng_mbedtls.c"/>
+        <file category="source" name="boot/bootutil/src/image_ecdsa.c"/>
+        <file category="source" name="boot/bootutil/src/image_ed25519.c"/>
+        <file category="source" name="boot/bootutil/src/image_validate.c"/>
+        <file category="source" name="boot/bootutil/src/loader.c"/>
+        <file category="source" name="boot/bootutil/src/swap_misc.c"/>
+        <file category="source" name="boot/bootutil/src/swap_move.c"/>
+        <file category="source" name="boot/bootutil/src/swap_priv.h"/>
+        <file category="source" name="boot/bootutil/src/swap_scratch.c"/>
+        <file category="source" name="boot/bootutil/src/tlv.c"/>
+        <file category="doc" name="docs/design.md"/>
+        <file category="doc" name="docs/ecdsa.md"/>
+        <file category="doc" name="docs/encrypted_images.md"/>
+        <file category="doc" name="docs/index.md"/>
+        <file category="doc" name="docs/release-notes.md"/>
+        <file category="doc" name="LICENSE.md"/>
+        <file category="doc" name="README.md"/>
+        <file category="doc" name="ST_Release_Notes.md"/>
+        <file category="doc" name="ST_Release_Notes.html"/>
+        <file category="doc" name="SW_Security_Level.md"/>
+      </files>
+    </component>
+    <component Cclass="Security" Cgroup="MCUboot" Csub="Platform Common" Cversion="1.0.0">
+      <description>MCUboot Platform Common component</description>
+      <files>
+        <file category="header" name="platform_common/boot_hal.h"/>
+        <file category="header" name="platform_common/cryptoboot_hal.h"/>
+        <file category="header" name="platform_common/Driver_Common.h"/>
+        <file category="header" name="platform_common/Driver_Flash.h"/>
+        <file category="header" name="platform_common/fih.h"/>
+        <file category="source" name="platform_common/flash_map.c"/>
+        <file category="header" name="platform_common/flash_map.h"/>
+        <file category="header" name="platform_common/flash_map_backend.h"/>
+        <file category="source" name="platform_common/flash_map_extended.c"/>
+        <file category="source" name="platform_common/flash_map_legacy.c"/>
+        <file category="source" name="platform_common/main.c"/>
+        <file category="header" name="platform_common/mcuboot_logging.h"/>
+        <file category="header" name="platform_common/plat_defs.h"/>
+        <file category="header" name="platform_common/plat_nv_counters.h"/>
+        <file category="source" name="platform_common/security_cnt.c"/>
+        <file category="source" name="platform_common/shared_data.c"/>
+        <file category="header" name="platform_common/sysflash.h"/>
+      </files>
+    </component>
+  </components>
+</package>
