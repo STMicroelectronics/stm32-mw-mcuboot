@@ -1,4 +1,4 @@
-<!-- License terms for [Apache-2.0]-->
+<!-- License terms for [Apache-2.0] -->
 Apache-2.0
 
 Version 2.0, February 2004
@@ -78,10 +78,10 @@ To apply the Apache License to your work, attach the following boilerplate notic
    See the License for the specific language governing permissions and
    limitations under the License.
 
----
+<!-- End of License terms -->
 
-BSD 3-clause "New" or "Revised" License
-(git.trustedfirmware.org/TF-M/trusted-firmware-m 1.3.0, git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32  1.3.0.1)
+<!-- License terms for [BSD-3-Clause] -->
+BSD-3-Clause
 
 Copyright [YEAR] [COPYRIGHT HOLDER]
 
@@ -93,413 +93,396 @@ Redistribution and use in source and binary forms, with or without modification,
 
 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
----
 
 <!-- End of License terms -->
+
 <BR>
 <BR>
 
-<!-- Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m]-->
+<!-- Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m] [BSD-3-Clause] -->
 Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m]
 
 	Copyright (c) 2017 Linaro Limited
-	
+
 	Copyright (c) 2018-2020 Arm Limited.
-	
+
 	Copyright (c) 2018-2020, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2019 Arm Limited.
-	
+
 	Copyright (c) 2020-2023, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2021-2024, Arm Limited. All rights reserved
-	
-	git.trustedfirmware.org/TF-M/trusted-firmware-m 1.3.0 long_tail:git.trustedfirmware.org/TF-M/trusted-firmware-m#TF-Mv1.3.0
-	
-	Copyright (c) 2021-2024, Arm Limited. All rights reserved
-	
-<!-- End of Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m]-->
-<!-- Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32]-->
+
+<!-- End of Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m] -->
+
+<!-- Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32] [BSD-3-Clause] -->
 Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32]
 
 	Copyright (c) 2012-2014 Wind River Systems, Inc.
-	
+
 	Copyright (c) 2013-2016 ARM Limited. All rights reserved
-	
+
 	Copyright (c) 2013-2017 ARM Limited. All rights reserved
-	
+
 	Copyright (c) 2015 Runtime Inc
-	
-	Copyright (c) 2017-2020 ARM Limited
-	
+
+	Copyright (c) 2016-2019 JUUL Labs
+
+	Copyright (c) 2016-2020 Linaro LTD
+
 	Copyright (c) 2017-2020 Arm Limited.
-	
+
 	Copyright (c) 2018 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2019 Arm Limited.
-	
+
 	Copyright (c) 2019-2020 Arm Limited.
-	
+
 	Copyright (c) 2019-2020, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2019-2021, Arm Limited. All rights reserved
-	
+
+	Copyright (c) 2019-2023 Arm Limited
+
 	Copyright (c) 2020-2021 Arm Limited.
-	
-	Copyright (c) 2020-2023 STMicroelectronics. All rights reserved
-	
-	Copyright (c) 2023 STMicroelectronics
-	
-	Copyright (c) 2023 STMicroelectronics. All rights reserved
-	
-	Copyright (c) 2023-2025 STMicroelectronics.
-	
-	Copyright (c) 2023-2025 STMicroelectronics. All rights reserved
-	
-	Copyright (c) 2025 STMicroelectronics
-	
-	© Copyright (c) 2021 STMicroelectronics.
-	
-<!-- End of Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32]-->
-<!-- Copyrights statements for [mcuboot]-->
-Copyrights statements for [mcuboot]
+
+	Copyright (c) 2020-2026 STMicroelectronics
+
+	Copyright (c) 2021-2026 STMicroelectronics
+
+	Copyright (c) 2023-2025 STMicroelectronics
+
+	Copyright (c) 2023-2026 STMicroelectronics
+
+	Copyright (c) 2024 Nordic Semiconductor ASA
+
+	Copyright (c) 2026 STMicroelectronics
+
+	mcuboot v2.1.0.3 null
 
 	Copyright (c) 2012-2014 Wind River Systems, Inc.
-	
+
 	Copyright (c) 2013-2016 ARM Limited. All rights reserved
-	
+
 	Copyright (c) 2013-2017 ARM Limited. All rights reserved
-	
+
 	Copyright (c) 2015 Runtime Inc
-	
+
 	Copyright (c) 2016-2019 JUUL Labs
-	
+
 	Copyright (c) 2016-2019 Linaro LTD
-	
+
 	Copyright (c) 2016-2020 Linaro LTD
-	
+
 	Copyright (c) 2017 Linaro Limited
-	
+
 	Copyright (c) 2017 Linaro LTD
-	
+
 	Copyright (c) 2017 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2017-2018 Linaro LTD
-	
+
 	Copyright (c) 2017-2019 JUUL Labs
-	
+
 	Copyright (c) 2017-2019 Linaro LTD
-	
-	Copyright (c) 2017-2020 ARM Limited
-	
+
 	Copyright (c) 2017-2020 Arm Limited.
-	
+
 	Copyright (c) 2017-2020 Linaro LTD
-	
+
 	Copyright (c) 2017-2022, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2018 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2018 Open Source Foundries Limited
-	
+
 	Copyright (c) 2018-2019 JUUL Labs
-	
+
 	Copyright (c) 2018-2020 Arm Limited
-	
+
 	Copyright (c) 2018-2020 Arm Limited.
-	
+
 	Copyright (c) 2018-2020, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2018-2021 Arm Limited
-	
+
 	Copyright (c) 2018-2023 Arm Limited
-	
+
 	Copyright (c) 2019 Arm Limited
-	
+
 	Copyright (c) 2019 Arm Limited.
-	
+
 	Copyright (c) 2019 JUUL Labs
-	
+
 	Copyright (c) 2019 Linaro Limited
-	
+
 	Copyright (c) 2019, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2019-2020 Arm Limited
-	
+
 	Copyright (c) 2019-2020 Arm Limited.
-	
+
 	Copyright (c) 2019-2020, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2019-2021 Arm Limited
-	
+
 	Copyright (c) 2019-2021, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2019-2023 Arm Limited
-	
+
 	Copyright (c) 2019-2024 Arm Limited
-	
+
 	Copyright (c) 2019-2024, Arm Limited.
-	
+
 	Copyright (c) 2020 Arm Limited
-	
+
+	Copyright (c) 2020 Arm Limited.
+
 	Copyright (c) 2020 Linaro Limited
-	
+
 	Copyright (c) 2020, Linaro Limited
-	
+
 	Copyright (c) 2020-2021 Arm Limited.
-	
+
 	Copyright (c) 2020-2021 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2020-2023 Arm Limited
-	
+
 	Copyright (c) 2020-2023 Nordic Semiconductor ASA
-	
-	Copyright (c) 2020-2023 STMicroelectronics. All rights reserved
-	
+
 	Copyright (c) 2020-2023, Arm Limited. All rights reserved
-	
+
+	Copyright (c) 2020-2026 STMicroelectronics
+
 	Copyright (c) 2021 Arm Limited
-	
+
 	Copyright (c) 2021 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2021, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2021-2023 Arm Limited
-	
+
 	Copyright (C) 2021-2024 Arm Limited
-	
+
 	Copyright (c) 2021-2024, Arm Limited. All rights reserved
-	
+
+	Copyright (c) 2021-2026 STMicroelectronics
+
 	Copyright (c) 2022, Laird Connectivity
-	
+
 	Copyright (c) 2023 Arm Limited
-	
+
 	Copyright (c) 2023 Nordic Semiconductor ASA
-	
-	Copyright (c) 2023 STMicroelectronics
-	
-	Copyright (c) 2023 STMicroelectronics. All rights reserved
-	
+
 	Copyright (c) 2023, Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2023-2024 Arm Limited
-	
+
 	Copyright (c) 2023-2025 STMicroelectronics
-	
-	Copyright (c) 2023-2025 STMicroelectronics.
-	
-	Copyright (c) 2023-2025 STMicroelectronics. All rights reserved
-	
+
+	Copyright (c) 2023-2026 STMicroelectronics
+
 	Copyright (c) 2024 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2025 STMicroelectronics
-	
+
 	Copyright (c) 2025 STMicroelectronics.
-	
+
+	Copyright (c) 2026 STMicroelectronics
+
+	Copyright (c) 2026 STMicroelectronics - All rights reserved
+
 	Copyright (c) 2026 STMicroelectronics.
-	
-	Copyright (c) 2026 STMicroelectronics.</code></pre>
-	
+
 	Copyright 2017 Linaro Limited
-	
+
 	Copyright 2017-2020 Linaro Limited
-	
+
 	Copyright 2018 Nordic Semiconductor ASA
-	
+
 	Copyright 2019-2024 Arm Limited
-	
+
 	Copyright 2020-2026 STMicroelectronics
-	
+
 	Copyright 2023 Arm Limited
-	
+
 	Copyright 2023-2024 Arm Limited
-	
+
 	Copyright 2024 Arm Limited
-	
+
 	Copyright 2026 STMicroelectronics
-	
-	© Copyright (c) 2021 STMicroelectronics.
-	
-<!-- End of Copyrights statements for [mcuboot]-->
-<!-- Copyrights statements for [mcu-tools/mcuboot]-->
+
+<!-- End of Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32] -->
+
+<!-- Copyrights statements for [mcu-tools/mcuboot] [Apache-2.0] -->
 Copyrights statements for [mcu-tools/mcuboot]
 
 	Copyright (c) 2016-2019 JUUL Labs
-	
+
 	Copyright (c) 2017 Linaro Limited
-	
+
 	Copyright (c) 2017-2018 Linaro LTD
-	
+
 	Copyright (c) 2017-2019 JUUL Labs
-	
+
 	Copyright (c) 2017-2019 Linaro LTD
-	
+
 	Copyright (c) 2018-2019 JUUL Labs
-	
+
 	Copyright (c) 2018-2020 Arm Limited
-	
+
 	Copyright (c) 2019 Arm Limited
-	
+
 	Copyright (c) 2019 JUUL Labs
-	
+
 	Copyright (c) 2019-2021 Arm Limited
-	
+
 	Copyright (c) 2020 Arm Limited
-	
+
 	Copyright (c) 2020 Linaro Limited
-	
+
 	Copyright (c) 2020-2021 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2020-2023 Arm Limited
-	
+
 	Copyright (c) 2021 Arm Limited
-	
+
 	Copyright (c) 2021 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2021, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2021-2023 Arm Limited
-	
+
 	Copyright (c) 2022, Laird Connectivity
-	
+
 	Copyright (c) 2023 Arm Limited
-	
+
 	Copyright 2017 Linaro Limited
-	
+
 	Copyright 2024 Arm Limited
-	
-	mcu-tools/mcuboot v2.1.0 github:mcu-tools/mcuboot:v2.1.0
-	
+
 	Copyright (c) 2016-2019 JUUL Labs
-	
+
 	Copyright (c) 2017 Linaro Limited
-	
+
 	Copyright (c) 2017 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2017-2018 Linaro LTD
-	
+
 	Copyright (c) 2017-2019 JUUL Labs
-	
+
 	Copyright (c) 2017-2019 Linaro LTD
-	
+
 	Copyright (c) 2018-2019 JUUL Labs
-	
+
 	Copyright (c) 2018-2020 Arm Limited
-	
+
 	Copyright (c) 2018-2021 Arm Limited
-	
+
 	Copyright (c) 2019 Arm Limited
-	
+
 	Copyright (c) 2019 JUUL Labs
-	
+
 	Copyright (c) 2019 Linaro Limited
-	
+
 	Copyright (c) 2019, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2019-2021 Arm Limited
-	
+
 	Copyright (c) 2020 Arm Limited
-	
+
 	Copyright (c) 2020 Linaro Limited
-	
+
 	Copyright (c) 2020-2021 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2020-2023 Arm Limited
-	
+
 	Copyright (c) 2021 Arm Limited
-	
+
 	Copyright (c) 2021 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2021, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2021-2023 Arm Limited
-	
+
 	Copyright (c) 2022, Laird Connectivity
-	
+
 	Copyright (c) 2023 Arm Limited
-	
-	Copyright 2017 Linaro Limited
-	
-	Copyright 2024 Arm Limited
-	
-<!-- End of Copyrights statements for [mcu-tools/mcuboot]-->
-<!-- Copyrights statements for [mcu-tools/mcuboot_STM32]-->
+
+<!-- End of Copyrights statements for [mcu-tools/mcuboot] -->
+
+<!-- Copyrights statements for [mcu-tools/mcuboot_STM32] [Apache-2.0] -->
 Copyrights statements for [mcu-tools/mcuboot_STM32]
 
 	Copyright (c) 2016-2019 JUUL Labs
-	
+
 	Copyright (c) 2016-2019 Linaro LTD
-	
-	Copyright (c) 2016-2020 Linaro LTD
-	
+
 	Copyright (c) 2017 Linaro LTD
-	
+
 	Copyright (c) 2017-2019 JUUL Labs
-	
+
 	Copyright (c) 2017-2019 Linaro LTD
-	
+
 	Copyright (c) 2017-2020 Linaro LTD
-	
+
 	Copyright (c) 2018-2019 JUUL Labs
-	
+
 	Copyright (c) 2018-2023 Arm Limited
-	
+
 	Copyright (c) 2019 JUUL Labs
-	
+
 	Copyright (c) 2019-2020 Arm Limited
-	
+
 	Copyright (c) 2019-2020, Arm Limited. All rights reserved
-	
+
 	Copyright (c) 2019-2021 Arm Limited
-	
+
 	Copyright (c) 2019-2023 Arm Limited
-	
+
 	Copyright (c) 2019-2024 Arm Limited
-	
+
 	Copyright (c) 2019-2024, Arm Limited.
-	
+
 	Copyright (c) 2020 Arm Limited
-	
+
 	Copyright (c) 2020 Linaro Limited
-	
+
 	Copyright (c) 2020, Linaro Limited
-	
+
 	Copyright (c) 2020-2023 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2021 Nordic Semiconductor ASA
-	
+
 	Copyright (C) 2021-2024 Arm Limited
-	
+
 	Copyright (c) 2023 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2023, Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2023-2024 Arm Limited
-	
+
 	Copyright (c) 2023-2025 STMicroelectronics
-	
-	Copyright (c) 2023-2025 STMicroelectronics. All rights reserved
-	
-	Copyright (c) 2024 Nordic Semiconductor ASA
-	
+
 	Copyright (c) 2025 STMicroelectronics
-	
+
 	Copyright 2017 Linaro Limited
-	
+
 	Copyright 2017-2020 Linaro Limited
-	
+
 	Copyright 2018 Nordic Semiconductor ASA
-	
+
 	Copyright 2019-2024 Arm Limited
-	
+
 	Copyright 2020-2026 STMicroelectronics
-	
+
 	Copyright 2023 Arm Limited
-	
+
 	Copyright 2023-2024 Arm Limited
-	
+
 	Copyright 2026 STMicroelectronics
-	
-<!-- End of Copyrights statements for [mcu-tools/mcuboot_STM32]-->
+
+<!-- End of Copyrights statements for [mcu-tools/mcuboot_STM32] -->

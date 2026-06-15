@@ -21,6 +21,9 @@
   <repository type="git">https://github.com/STMicroelectronics/stm32-mw-mcuboot/tree/hal2</repository>
   <supportContact/>
   <releases>
+    <release version="2.0.1" date="2026-04-28">
+      - Minor changes vs 2.0.0
+    </release>
     <release version="2.0.0" date="2026-02-10">
       - First release of MCUboot SW pack
     </release>
@@ -34,6 +37,7 @@
     <keyword>mcuboot</keyword>
     <keyword>Boot path</keyword>
     <keyword>Root Of Trust</keyword>
+    <keyword>imgtool</keyword>
   </keywords>
   <!-- Conditions -->
   <conditions>
@@ -44,7 +48,7 @@
   </conditions>
   <!-- Components definition -->
   <components>
-    <component Cclass="Security" Cgroup="MCUboot" Csub="Core" Cversion="1.0.0" condition="MCUboot Platform Common Condition">
+    <component Cclass="Security" Cgroup="MCUboot" Csub="Core" Cversion="1.0.1" condition="MCUboot Platform Common Condition">
       <description>MCUboot Core component</description>
       <Pre_Include_Global_h>
 #define MCUBOOT_DOUBLE_SIGN_VERIF
@@ -54,18 +58,16 @@
         <file category="header" name="boot/bootutil/include/bootutil/boot_hooks.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/boot_public_hooks.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/boot_record.h"/>
+        <file category="header" name="boot/bootutil/include/bootutil/boot_status.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/bootutil.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/bootutil_log.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/bootutil_public.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/caps.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/crypto/aes_ctr.h"/>
-        <file category="header" name="boot/bootutil/include/bootutil/crypto/aes_kw.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/crypto/common.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/crypto/ecdh_p256.h"/>
-        <file category="header" name="boot/bootutil/include/bootutil/crypto/ecdh_x25519.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/crypto/ecdsa.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/crypto/hmac_sha256.h"/>
-        <file category="header" name="boot/bootutil/include/bootutil/crypto/rsa.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/crypto/sha.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/enc_key.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/enc_key_public.h"/>
@@ -77,7 +79,6 @@
         <file category="header" name="boot/bootutil/include/bootutil/ramload.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/security_cnt.h"/>
         <file category="header" name="boot/bootutil/include/bootutil/sign_key.h"/>
-        <file category="source" name="boot/bootutil/src/boot_record.c"/>
         <file category="source" name="boot/bootutil/src/bootutil_misc.c"/>
         <file category="header" name="boot/bootutil/src/bootutil_misc.h"/>
         <file category="header" name="boot/bootutil/src/bootutil_priv.h"/>
@@ -87,7 +88,6 @@
         <file category="source" name="boot/bootutil/src/fault_injection_hardening.c"/>
         <file category="source" name="boot/bootutil/src/fault_injection_hardening_delay_rng_mbedtls.c"/>
         <file category="source" name="boot/bootutil/src/image_ecdsa.c"/>
-        <file category="source" name="boot/bootutil/src/image_ed25519.c"/>
         <file category="source" name="boot/bootutil/src/image_validate.c"/>
         <file category="source" name="boot/bootutil/src/loader.c"/>
         <file category="source" name="boot/bootutil/src/swap_misc.c"/>
@@ -107,7 +107,7 @@
         <file category="doc" name="SW_Security_Level.md"/>
       </files>
     </component>
-    <component Cclass="Security" Cgroup="MCUboot" Csub="Platform Common" Cversion="1.0.0">
+    <component Cclass="Security" Cgroup="MCUboot" Csub="Platform Common" Cversion="1.0.1">
       <description>MCUboot Platform Common component</description>
       <files>
         <file category="header" name="platform_common/boot_hal.h"/>
@@ -125,7 +125,6 @@
         <file category="header" name="platform_common/plat_defs.h"/>
         <file category="header" name="platform_common/plat_nv_counters.h"/>
         <file category="source" name="platform_common/security_cnt.c"/>
-        <file category="source" name="platform_common/shared_data.c"/>
         <file category="header" name="platform_common/sysflash.h"/>
       </files>
     </component>

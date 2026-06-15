@@ -22,6 +22,34 @@ More  documentation is available at [MCUboot SW Pack online documentation](https
 
 # Update History
 
+<label for="collapse-section2" aria-hidden="true">__2.0.1 / 5-June-2026__</label>
+<div>
+
+## Main Changes
+
+- Bypass some uneeded software initialisations on wake-up from stand-by mode for performances reasons
+- Fix imgtool scripts for external signature management and otfdec use case
+
+## Known limitations
+
+- None
+
+## Backward compatibility
+
+- Full compatibility with previous versions
+
+## Development Toolchains and Compilers
+
+- IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 + ST-LINK
+- MDK-ARM Keil uVision V5.42
+- STM32CubeIDE for Visual Studio Code (GCC13 compiler)
+
+## Dependencies
+
+- STFCF SW Pack V2.0.0 or greater
+
+</div>
+
 <label for="collapse-section1" aria-hidden="true">__2.0.0 / 13-March-2026__</label>
 <div>
 
@@ -51,11 +79,8 @@ More  documentation is available at [MCUboot SW Pack online documentation](https
 </div>
 
 
-<footer class="sticky">
 
 For complete documentation on STM32 Microcontrollers,
 visit: http://www.st.com/STM32
 
 <abbr title="Based on template cx566953 version 2.1">Info</abbr>
-
-</footer>

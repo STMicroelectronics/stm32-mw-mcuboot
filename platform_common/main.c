@@ -18,9 +18,7 @@
 
 #include "mcuboot_config.h"
 #include <assert.h>
-#if !defined (MCUBOOT_USE_HAL)
 #include "mbedtls/memory_buffer_alloc.h"
-#endif /* !MCUBOOT_USE_HAL */
 #include "bootutil/security_cnt.h"
 #include "bootutil/bootutil_log.h"
 #include "bootutil/image.h"
@@ -43,7 +41,6 @@
 __asm("  .global __ARM_use_no_argv\n");
 #endif
 
-#if !defined (MCUBOOT_USE_HAL)
 /* Allow to be customized by the project else the default value is applied */
 #if !defined(ROT_MBEDTLS_MEM_BUF_LEN)
 #ifdef MCUBOOT_ENCRYPT_RSA
@@ -59,7 +56,6 @@ __NO_INIT static uint8_t mbedtls_mem_buf[ROT_MBEDTLS_MEM_BUF_LEN];
 #else
 static uint8_t mbedtls_mem_buf[ROT_MBEDTLS_MEM_BUF_LEN] __attribute__((section(".bss.NoInit"))) ;
 #endif /* __ICCARM__ */
-#endif /* MCUBOOT_USE_HAL */
 
 static void do_boot(struct boot_rsp *rsp)
 {
@@ -105,23 +101,9 @@ int main(void)
     struct boot_arm_vector_table *vt = NULL;
 #endif /* OEMIROT_FAST_WAKE_UP */
 
-#if !defined (MCUBOOT_USE_HAL)
-    /* Initialise the mbedtls static memory allocator so that mbedtls allocates
-     * memory from the provided static buffer instead of from the heap.
-     */
-    mbedtls_memory_buffer_alloc_init(mbedtls_mem_buf, ROT_MBEDTLS_MEM_BUF_LEN);
-#endif /* MCUBOOT_USE_HAL */
-
     /* Perform platform specific initialization */
     if (boot_platform_init() != 0) {
         BOOT_LOG_ERR("Platform init failed");
-        FIH_PANIC;
-    }
-
-
-    FIH_CALL(boot_nv_security_counter_init, fih_rc);
-    if (FIH_NOT_EQ(fih_rc, FIH_SUCCESS)) {
-        BOOT_LOG_ERR("Error while initializing the security counter");
         FIH_PANIC;
     }
 
@@ -135,6 +117,17 @@ int main(void)
         }
     }
 #endif /* OEMIROT_FAST_WAKE_UP */
+
+    /* Initialise the mbedtls static memory allocator so that mbedtls allocates
+     * memory from the provided static buffer instead of from the heap.
+     */
+    mbedtls_memory_buffer_alloc_init(mbedtls_mem_buf, ROT_MBEDTLS_MEM_BUF_LEN);
+
+    FIH_CALL(boot_nv_security_counter_init, fih_rc);
+    if (FIH_NOT_EQ(fih_rc, FIH_SUCCESS)) {
+        BOOT_LOG_ERR("Error while initializing the security counter");
+        FIH_PANIC;
+    }
 
 #if defined(MCUBOOT_USE_PSA_CRYPTO)
     /* If the bootloader is configured to use PSA Crypto APIs in the

@@ -1,6 +1,6 @@
 # MCUboot Software pack
 
-![tag](https://img.shields.io/badge/tag-2.0.0-brightgreen.svg)
+![tag](https://img.shields.io/badge/tag-2.0.1-brightgreen.svg)
 [![release note](https://img.shields.io/badge/release_note-view_html-gold.svg)](https://htmlpreview.github.io/?https://github.com/STMicroelectronics/stm32-mw-mcuboot/blob/hal2/ST_Release_Notes.html)
 
 ## Overview

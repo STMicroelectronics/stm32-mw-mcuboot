@@ -210,8 +210,8 @@ class TLV():
         self.digest = sha.digest()
         self.add(hash_tlv, self.digest)
         self.image_hash = self.digest
+        pubkey=self.get_public_key()
         if hasattr(self,'key') and self.key is not None:
-            pubkey=self.get_public_key()
             if enckey is not None and enckey.sig_type()=="AESGCM_SHA256":
                 # The key identifies the third party authority
                 # public key is set in AUTH_TAG
@@ -250,11 +250,13 @@ class TLV():
                 self.add('PUBKEY', pubkey) 
             # `sign` expects the full image payload (sha256 done internally),
             # while `sign_digest` expects only the digest of the payload
-            # force ECDSA key to max size.
-            if isinstance(self.pub_key, ecdsa.ECDSA256P1Public):
-                fixed_sig['value'] = ecdsa.ECDSA256P1.build_uncompress_signature(self,fixed_sig['value'])
-            if isinstance(self.pub_key, ecdsa.ECDSA384P1Public):
-                fixed_sig['value'] = ecdsa.ECDSA384P1.build_uncompress_signature(self,fixed_sig['value'])
+            # In case of STiRoT force ECDSA key to max size to have
+            # an image size length to full slot (less 0x20 bytes trailer).
+            if self.magic_val in STiROT:
+                if isinstance(self.pub_key, ecdsa.ECDSA256P1Public):
+                    fixed_sig['value'] = ecdsa.ECDSA256P1.build_uncompress_signature(self,fixed_sig['value'])
+                if isinstance(self.pub_key, ecdsa.ECDSA384P1Public):
+                    fixed_sig['value'] = ecdsa.ECDSA384P1.build_uncompress_signature(self,fixed_sig['value'])
             self.add(self.pub_key.sig_tlv(), fixed_sig['value'])
             self.signature = fixed_sig['value']
       
@@ -286,6 +288,8 @@ class TLV():
     def get_public_key(self):
         if hasattr(self,'key')  and self.key is not None:
             return self.key.get_public_bytes()
+        elif self.pub_key is not None:
+            return self.pub_key.get_public_bytes()
         else:
             return None
         
@@ -641,6 +645,7 @@ class Image:
         elif otfdec is not None:
             image_flag = 'OTFDEC'
             self.otfdec = True
+            self.otfdec_address = otfdec
         else:
             image_flag = False
         # key decides on sha, then pub_key; of both are none default is used
@@ -753,9 +758,9 @@ class Image:
                         tlv.unset_key()
                         
                 else:  
-                    if vector_to_sign is not None:
+                    if self.vector_to_sign is not None:
                         self.payload += prot_tlv.get()
-                        if vector_to_sign == 'digest':
+                        if self.vector_to_sign == 'digest':
                             sha = hash_algorithm()
                             sha.update(self.payload)
                             self.digest = sha.digest()
@@ -797,9 +802,9 @@ class Image:
                     tlv.clear()
                     self.add_header(enckey, len(prot_tlv),compression_flags, endof_payload_section,
                                     encrypt_keylen,chip_licence = licence,image_flag=image_flag)
-                    if vector_to_sign is not None:
+                    if self.vector_to_sign is not None:
                         self.payload += prot_tlv.get()
-                        if vector_to_sign == 'digest':
+                        if self.vector_to_sign == 'digest':
                             sha = hash_algorithm()
                             sha.update(self.payload)
                             self.digest = sha.digest()
@@ -835,8 +840,12 @@ class Image:
                 prot_tlv = TLV(self.endian, TLV_PROT_INFO_MAGIC)
             if enckey is not None:
                 self.enctlv_len=tlv.add_key(enckey, plainkey)
-                nonce=bytes([0] * 16)
-                img=self._crypt(plainkey, nonce)
+                
+                # Fix OTFDEC fill part of IV (Initialisation Vector) creation
+                address = int(self.otfdec_address / 16)
+                iv = address.to_bytes(16, byteorder = 'big')  
+
+                img=self._crypt(plainkey, iv)
                 if clear==False:
                     if type(self.payload)!=bytearray:
                         self.payload=bytearray(self.payload) 

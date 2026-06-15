@@ -52,13 +52,16 @@ SW Pack online documentation</a>.</p>
 <section id="update-history" class="col-sm-12 col-lg-8">
 <h1>Update History</h1>
 <div class="collapse">
-<input type="checkbox" id="collapse-section1" checked aria-hidden="true">
-<label for="collapse-section1" aria-hidden="true"><strong>2.0.0 /
-13-March-2026</strong></label>
+<input type="checkbox" id="collapse-section2" checked aria-hidden="true">
+<label for="collapse-section2" aria-hidden="true"><strong>2.0.1 /
+5-June-2026</strong></label>
 <div>
 <h2 id="main-changes">Main Changes</h2>
 <ul>
-<li>First Official release of MCUboot SW Pack</li>
+<li>Bypass some uneeded software initialisations on wake-up from
+stand-by mode for performances reasons</li>
+<li>Fix imgtool scripts for external signature management and otfdec use
+case</li>
 </ul>
 <h2 id="known-limitations">Known limitations</h2>
 <ul>
@@ -66,7 +69,7 @@ SW Pack online documentation</a>.</p>
 </ul>
 <h2 id="backward-compatibility">Backward compatibility</h2>
 <ul>
-<li>None</li>
+<li>Full compatibility with previous versions</li>
 </ul>
 <h2 id="development-toolchains-and-compilers">Development Toolchains and
 Compilers</h2>
@@ -77,6 +80,37 @@ ST-LINK</li>
 <li>STM32CubeIDE for Visual Studio Code (GCC13 compiler)</li>
 </ul>
 <h2 id="dependencies">Dependencies</h2>
+<ul>
+<li>STFCF SW Pack V2.0.0 or greater</li>
+</ul>
+</div>
+</div>
+<div class="collapse">
+<input type="checkbox" id="collapse-section1" unchecked aria-hidden="true">
+<label for="collapse-section1" aria-hidden="true"><strong>2.0.0 /
+13-March-2026</strong></label>
+<div>
+<h2 id="main-changes-1">Main Changes</h2>
+<ul>
+<li>First Official release of MCUboot SW Pack</li>
+</ul>
+<h2 id="known-limitations-1">Known limitations</h2>
+<ul>
+<li>None</li>
+</ul>
+<h2 id="backward-compatibility-1">Backward compatibility</h2>
+<ul>
+<li>None</li>
+</ul>
+<h2 id="development-toolchains-and-compilers-1">Development Toolchains
+and Compilers</h2>
+<ul>
+<li>IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 +
+ST-LINK</li>
+<li>MDK-ARM Keil uVision V5.42</li>
+<li>STM32CubeIDE for Visual Studio Code (GCC13 compiler)</li>
+</ul>
+<h2 id="dependencies-1">Dependencies</h2>
 <ul>
 <li>STM32C5xx HAL Drivers V2.0.0</li>
 <li>STFCF SW Pack V2.0.0</li>
