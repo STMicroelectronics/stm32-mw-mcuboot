@@ -15,4 +15,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-imgtool_version = "2.1.0.2"
+imgtool_version = "2.1.0.3"

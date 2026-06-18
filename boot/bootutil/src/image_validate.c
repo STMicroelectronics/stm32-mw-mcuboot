@@ -676,7 +676,7 @@ bootutil_img_validate(struct enc_key_data *enc_state, int image_index,
                 if ((len == 113)
 #if !defined(MCUBOOT_PRIMARY_ONLY)
                     /* Check image is encrypted */
-                    && ((hdr->ih_flags & IMAGE_F_ENCRYPTED) == IMAGE_F_ENCRYPTED)
+                    && ((hdr->ih_flags & (IMAGE_F_ENCRYPTED | IMAGE_F_OTFDEC)) != 0)
 #endif /* !defined(MCUBOOT_PRIMARY_ONLY) */
                     /* Only one non protected TLV allowed */
                     && (tlv_enc == 0))

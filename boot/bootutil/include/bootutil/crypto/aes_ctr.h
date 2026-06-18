@@ -297,11 +297,11 @@ static int aes_setkey( bootutil_aes_ctr_context *ctx,
     /* Set the common CRYP parameters */
 #if defined (SAES)
     ctx->hcryp_aes.Instance = SAES;
+    ctx->hcryp_aes.Init.KeyMode = CRYP_KEYMODE_NORMAL;
+    ctx->hcryp_aes.Init.KeySelect = CRYP_KEYSEL_NORMAL;
 #else
     ctx->hcryp_aes.Instance = AES;
 #endif
-    ctx->hcryp_aes.Init.KeyMode = CRYP_KEYMODE_NORMAL;
-    ctx->hcryp_aes.Init.KeySelect = CRYP_KEYSEL_NORMAL;
     ctx->hcryp_aes.Init.Algorithm     = CRYP_AES_ECB;
 
     /* Enable clock */

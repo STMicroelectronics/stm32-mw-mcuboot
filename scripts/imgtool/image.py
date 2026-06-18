@@ -641,6 +641,7 @@ class Image:
         elif otfdec is not None:
             image_flag = 'OTFDEC'
             self.otfdec = True
+            self.otfdec_address = otfdec
         else:
             image_flag = False
         # key decides on sha, then pub_key; of both are none default is used
@@ -835,8 +836,12 @@ class Image:
                 prot_tlv = TLV(self.endian, TLV_PROT_INFO_MAGIC)
             if enckey is not None:
                 self.enctlv_len=tlv.add_key(enckey, plainkey)
-                nonce=bytes([0] * 16)
-                img=self._crypt(plainkey, nonce)
+                
+                # Fix OTFDEC fill part of IV (Initialisation Vector) creation
+                address = int(self.otfdec_address / 16)
+                iv = address.to_bytes(16, byteorder = 'big')  
+
+                img=self._crypt(plainkey, iv)
                 if clear==False:
                     if type(self.payload)!=bytearray:
                         self.payload=bytearray(self.payload) 

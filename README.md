@@ -1,6 +1,6 @@
 # [mcuboot](http://mcuboot.com/)
 
-![tag](https://img.shields.io/badge/tag-v1.7.2.39-brightgreen.svg)
+![tag](https://img.shields.io/badge/tag-v1.7.2.40-brightgreen.svg)
 [![Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)][license]
 
 [license]: https://github.com/mcu-tools/mcuboot/blob/master/LICENSE
