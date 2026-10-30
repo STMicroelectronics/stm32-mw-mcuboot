@@ -463,7 +463,7 @@ class Image:
                  overwrite_only=False, endian="little", load_addr=0,
                  rom_fixed=None, erased_val=None, save_enctlv=False,
                  security_counter=None, max_align=None, magic_val=0x96f3b83d,
-                 non_bootable=False, no_pad_tlv=True):
+                 non_bootable=False, no_pad_tlv=True, trailer_size=None):
 
         if load_addr and rom_fixed:
             raise click.UsageError("Can not set rom_fixed and load_addr at the same time")
@@ -479,6 +479,7 @@ class Image:
         self.align = align
         self.slot_size = slot_size
         self.max_sectors = max_sectors
+        self.trailer_size = trailer_size
         if magic_val in STiROT:
             self.overwrite_only=OverWrite["SHORT_OVERWRITE"]
         elif overwrite_only:
@@ -594,7 +595,8 @@ class Image:
                                                   self.overwrite_only,
                                                   self.enckey,
                                                   self.save_enctlv,
-                                                  self.enctlv_len)
+                                                  self.enctlv_len,
+                                                  self.trailer_size)
                 trailer_addr = (self.base_addr + self.slot_size) - trailer_size
                 if self.confirm and OverWrite["NO_OVERWRITE"]==self.overwrite_only:
                     magic_align_size = align_up(len(self.boot_magic),
@@ -624,7 +626,8 @@ class Image:
         if self.slot_size > 0:
             tsize = self._trailer_size(self.align, self.max_sectors,
                                        self.overwrite_only, self.enckey,
-                                       self.save_enctlv, self.enctlv_len)
+                                       self.save_enctlv, self.enctlv_len,
+                                       self.trailer_size)
             padding = self.slot_size - (len(self.payload) + tsize)
             if padding < 0:
                 msg = "Image size (0x{:x}) + trailer (0x{:x}) exceeds " \
@@ -782,7 +785,8 @@ class Image:
                         raise click.UsageError('Need protected TLV for this magic, error')
                     traileur_size=self._trailer_size(self.align, self.max_sectors,
                                         self.overwrite_only, self.enckey,
-                                        self.save_enctlv, self.enctlv_len)
+                                        self.save_enctlv, self.enctlv_len,
+                                        self.trailer_size)
                     free=self.slot_size-endof_payload_section-len(tlv)-len(prot_tlv)-traileur_size
                     
                     if self.no_pad_tlv:
@@ -929,7 +933,7 @@ class Image:
         self.payload[:len(header)] = header
 
     def _trailer_size(self, write_size, max_sectors, mode, enckey,
-                      save_enctlv, enctlv_len):
+                      save_enctlv, enctlv_len, trailer_size=None):
         # NOTE: should already be checked by the argument parser
         magic_size = 16
         if self.primary_only:
@@ -939,6 +943,8 @@ class Image:
             return self.max_align  + magic_size
         if mode==OverWrite["LONG_OVERWRITE"]:
             return self.max_align * 2 + magic_size
+        if trailer_size is not None:
+            return trailer_size
         else:
             if write_size not in set([1, 2, 4, 8, 16, 32]):
                 raise click.BadParameter("Invalid alignment: {}".format(
@@ -960,7 +966,8 @@ class Image:
         """Pad the image to the given size, with the given flash alignment."""
         tsize = self._trailer_size(self.align, self.max_sectors,
                                    self.overwrite_only, self.enckey,
-                                   self.save_enctlv, self.enctlv_len)
+                                   self.save_enctlv, self.enctlv_len,
+                                   self.trailer_size)
         padding = size - (len(self.payload) + tsize)
         pbytes = bytearray([self.erased_val] * padding)
         pbytes += bytearray([self.erased_val] * (tsize - len(self.boot_magic)))

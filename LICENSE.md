@@ -173,8 +173,6 @@ Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32
 
 	Copyright (c) 2016-2019 JUUL Labs
 
-	Copyright (c) 2016-2019 Linaro LTD
-
 	Copyright (c) 2016-2020 Linaro LTD
 
 	Copyright (c) 2017 Linaro Limited
@@ -235,15 +233,11 @@ Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32
 
 	Copyright (c) 2019-2024 Arm Limited
 
-	Copyright (c) 2019-2024, Arm Limited.
-
 	Copyright (c) 2020 Arm Limited
 
 	Copyright (c) 2020 Arm Limited.
 
 	Copyright (c) 2020 Linaro Limited
-
-	Copyright (c) 2020, Linaro Limited
 
 	Copyright (c) 2020-2021 Arm Limited.
 
@@ -306,10 +300,6 @@ Copyrights statements for [git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32
 	Copyright 2019-2024 Arm Limited
 
 	Copyright 2020-2026 STMicroelectronics
-
-	Copyright 2023 Arm Limited
-
-	Copyright 2023-2024 Arm Limited
 
 	Copyright 2024 Arm Limited
 

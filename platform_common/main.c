@@ -137,7 +137,7 @@ int main(void)
      */
     psa_status_t status = psa_crypto_init();
     if (status != PSA_SUCCESS) {
-        BOOT_LOG_ERR("PSA Crypto init failed with error code %d", status);
+        BOOT_LOG_ERR("PSA Crypto init failed with error code %d", (int)status);
         FIH_PANIC;
     }
     BOOT_LOG_INF("PSA Crypto init done, sig_type: %s", xstr(MCUBOOT_SIGNATURE_TYPE));

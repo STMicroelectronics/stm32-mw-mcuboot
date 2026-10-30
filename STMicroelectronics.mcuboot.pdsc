@@ -21,6 +21,12 @@
   <repository type="git">https://github.com/STMicroelectronics/stm32-mw-mcuboot/tree/hal2</repository>
   <supportContact/>
   <releases>
+    <release version="2.0.3" date="2026-08-26">
+      - Minor changes vs 2.0.2
+    </release>
+    <release version="2.0.2" date="2026-06-10">
+      - Cleanup sbom
+    </release>
     <release version="2.0.1" date="2026-04-28">
       - Minor changes vs 2.0.0
     </release>
@@ -48,7 +54,7 @@
   </conditions>
   <!-- Components definition -->
   <components>
-    <component Cclass="Security" Cgroup="MCUboot" Csub="Core" Cversion="1.0.1" condition="MCUboot Platform Common Condition">
+    <component Cclass="Security" Cgroup="MCUboot" Csub="Core" Cversion="1.0.2" condition="MCUboot Platform Common Condition">
       <description>MCUboot Core component</description>
       <Pre_Include_Global_h>
 #define MCUBOOT_DOUBLE_SIGN_VERIF

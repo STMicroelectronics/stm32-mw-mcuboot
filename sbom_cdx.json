@@ -1,15 +1,15 @@
 {
     "bomFormat": "CycloneDX",
     "specVersion": "1.5",
-    "serialNumber": "urn:uuid:f4572b47-cec3-4986-865e-9810e3091ea9",
+    "serialNumber": "urn:uuid:dbe1bf9b-6c6f-42df-b4a9-002779926e27",
     "version": 1,
     "metadata": {
-        "timestamp": "2026-04-30T08:38:52Z",
+        "timestamp": "2026-08-27T12:50:23Z",
         "tools": [
             {
                 "vendor": "Black Duck",
                 "name": "Hub",
-                "version": "2026.1.1"
+                "version": "2026.7.0"
             },
             {
                 "vendor": "CycloneDX",
@@ -24,12 +24,9 @@
         ],
         "component": {
             "type": "application",
-            "bom-ref": "567e4305-69b3-43ea-b589-da1de0c47be3",
-            "supplier": {
-                "name": "Organization: MCUboot"
-            },
+            "bom-ref": "3ea51a00-6868-4241-934c-93f1929d05a5",
             "name": "MCUboot",
-            "version": "2.0.1",
+            "version": "2.0.3",
             "licenses": [
                 {
                     "license": {
@@ -47,20 +44,20 @@
                 },
                 {
                     "name": "BlackDuck-ComponentVersion",
-                    "value": "567e4305-69b3-43ea-b589-da1de0c47be3"
+                    "value": "3ea51a00-6868-4241-934c-93f1929d05a5"
                 }
             ]
+        },
+        "supplier": {
+            "name": "STMicroelectronics NV"
         }
     },
     "components": [
         {
             "type": "library",
-            "bom-ref": "567e4305-69b3-43ea-b589-da1de0c47be3---edea1c75-6d21-43d5-8ad5-c411b30cef44",
-            "supplier": {
-                "name": "Organization: mcuboot"
-            },
+            "bom-ref": "3ea51a00-6868-4241-934c-93f1929d05a5---022ff933-52ee-4395-8ba7-79fcd7d25e70",
             "name": "mcuboot",
-            "version": "v2.1.0.3",
+            "version": "v2.1.0.4",
             "licenses": [
                 {
                     "license": {
@@ -78,16 +75,13 @@
                 },
                 {
                     "name": "BlackDuck-ComponentVersion",
-                    "value": "edea1c75-6d21-43d5-8ad5-c411b30cef44"
+                    "value": "022ff933-52ee-4395-8ba7-79fcd7d25e70"
                 }
             ]
         },
         {
             "type": "library",
-            "bom-ref": "edea1c75-6d21-43d5-8ad5-c411b30cef44---8e852e9b-60ef-461b-991d-62dd4ffacdc9",
-            "supplier": {
-                "name": "Organization: git.trustedfirmware.org/TF-M/trusted-firmware-m"
-            },
+            "bom-ref": "022ff933-52ee-4395-8ba7-79fcd7d25e70---8e852e9b-60ef-461b-991d-62dd4ffacdc9",
             "name": "git.trustedfirmware.org/TF-M/trusted-firmware-m",
             "version": "1.3.0",
             "licenses": [
@@ -114,10 +108,8 @@
         },
         {
             "type": "library",
-            "bom-ref": "edea1c75-6d21-43d5-8ad5-c411b30cef44---a0421b0b-e53a-43db-a393-7cd948276718",
-            "supplier": {
-                "name": "Organization: git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32"
-            },
+            "bom-ref": "022ff933-52ee-4395-8ba7-79fcd7d25e70---a0421b0b-e53a-43db-a393-7cd948276718",
+            "author": "STMicroelectronics",
             "name": "git.trustedfirmware.org/TF-M/trusted-firmware-m_STM32",
             "version": "1.3.0.2",
             "licenses": [
@@ -143,10 +135,7 @@
         },
         {
             "type": "library",
-            "bom-ref": "edea1c75-6d21-43d5-8ad5-c411b30cef44---851c32bf-9ade-43c2-b2f4-672aaa242428",
-            "supplier": {
-                "name": "Organization: mcu-tools"
-            },
+            "bom-ref": "022ff933-52ee-4395-8ba7-79fcd7d25e70---a58f36b3-337c-4c5e-a295-87d46afbd7b8",
             "name": "mcu-tools/mcuboot",
             "version": "v2.1.0",
             "licenses": [
@@ -157,7 +146,6 @@
                 }
             ],
             "cpe": "cpe:2.3:a:mcu-tools:mcuboot:2.1.0:*:*:*:*:*:*:*",
-            "purl": "pkg:github/mcu-tools/mcuboot@v2.1.0",
             "pedigree": {
                 "notes": "Apache License 2.0"
             },
@@ -178,13 +166,36 @@
         },
         {
             "type": "library",
-            "bom-ref": "edea1c75-6d21-43d5-8ad5-c411b30cef44---166e1a90-03df-4f98-bf10-1947f6f9a2ba",
-            "supplier": {
-                "name": "Organization: mcu-tools/mcuboot_STM32"
+            "bom-ref": "022ff933-52ee-4395-8ba7-79fcd7d25e70---851c32bf-9ade-43c2-b2f4-672aaa242428",
+            "name": "mcu-tools/mcuboot",
+            "version": "v2.1.0",
+            "licenses": [
+                {
+                    "license": {
+                        "id": "Apache-2.0"
+                    }
+                }
+            ],
+            "cpe": "cpe:2.3:a:mcu-tools:mcuboot:2.1.0:*:*:*:*:*:*:*",
+            "pedigree": {
+                "notes": "Apache License 2.0"
             },
-            "author": "STMicroelectronics",
+            "properties": [
+                {
+                    "name": "BlackDuck-Component",
+                    "value": "bb02aa83-e0e5-498f-8f16-d0d3a8a5902b"
+                },
+                {
+                    "name": "BlackDuck-ComponentVersion",
+                    "value": "851c32bf-9ade-43c2-b2f4-672aaa242428"
+                }
+            ]
+        },
+        {
+            "type": "library",
+            "bom-ref": "022ff933-52ee-4395-8ba7-79fcd7d25e70---9b252445-5cc9-44eb-b5b0-b62e699664ec",
             "name": "mcu-tools/mcuboot_STM32",
-            "version": "2.1.0.3 / ST modified",
+            "version": "2.1.0.4 / ST modified",
             "licenses": [
                 {
                     "license": {
@@ -202,25 +213,25 @@
                 },
                 {
                     "name": "BlackDuck-ComponentVersion",
-                    "value": "166e1a90-03df-4f98-bf10-1947f6f9a2ba"
+                    "value": "9b252445-5cc9-44eb-b5b0-b62e699664ec"
                 }
             ]
         }
     ],
     "dependencies": [
         {
-            "ref": "567e4305-69b3-43ea-b589-da1de0c47be3---edea1c75-6d21-43d5-8ad5-c411b30cef44",
+            "ref": "3ea51a00-6868-4241-934c-93f1929d05a5---022ff933-52ee-4395-8ba7-79fcd7d25e70",
             "dependsOn": [
-                "edea1c75-6d21-43d5-8ad5-c411b30cef44---8e852e9b-60ef-461b-991d-62dd4ffacdc9",
-                "edea1c75-6d21-43d5-8ad5-c411b30cef44---a0421b0b-e53a-43db-a393-7cd948276718",
-                "edea1c75-6d21-43d5-8ad5-c411b30cef44---851c32bf-9ade-43c2-b2f4-672aaa242428",
-                "edea1c75-6d21-43d5-8ad5-c411b30cef44---166e1a90-03df-4f98-bf10-1947f6f9a2ba"
+                "022ff933-52ee-4395-8ba7-79fcd7d25e70---8e852e9b-60ef-461b-991d-62dd4ffacdc9",
+                "022ff933-52ee-4395-8ba7-79fcd7d25e70---a0421b0b-e53a-43db-a393-7cd948276718",
+                "022ff933-52ee-4395-8ba7-79fcd7d25e70---851c32bf-9ade-43c2-b2f4-672aaa242428",
+                "022ff933-52ee-4395-8ba7-79fcd7d25e70---9b252445-5cc9-44eb-b5b0-b62e699664ec"
             ]
         },
         {
-            "ref": "567e4305-69b3-43ea-b589-da1de0c47be3",
+            "ref": "3ea51a00-6868-4241-934c-93f1929d05a5",
             "dependsOn": [
-                "567e4305-69b3-43ea-b589-da1de0c47be3---edea1c75-6d21-43d5-8ad5-c411b30cef44"
+                "3ea51a00-6868-4241-934c-93f1929d05a5---022ff933-52ee-4395-8ba7-79fcd7d25e70"
             ]
         }
     ]

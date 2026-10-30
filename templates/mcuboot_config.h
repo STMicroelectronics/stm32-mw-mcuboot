@@ -2,7 +2,7 @@
   * Copyright (c) 2018 Open Source Foundries Limited
   * Copyright (c) 2019 Arm Limited
   *
-  * Copyright (c) 2025 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   *
   * SPDX-License-Identifier: Apache-2.0
   */
@@ -17,10 +17,10 @@ extern "C" {
 /*
  * Cryptography
  */
-/* Supported crypto schemes (do not change values, as used in appli postbuild script) */
-#define CRYPTO_SCHEME_EC384      0x1 /* ECDSA-384 signature,
+/* Crypto schemes */
+#define CRYPTO_SCHEME_EC384      0x1 /* SHA-384 hash, ECDSA-384 signature,
                                         AES-CTR-256 encryption with sym key ECIES-P256 encrypted */
-#define CRYPTO_SCHEME_EC256      0x2 /* ECDSA-256 signature,
+#define CRYPTO_SCHEME_EC256      0x2 /* SHA-256 hash, ECDSA-256 signature,
                                         AES-CTR-128 encryption with sym key ECIES-P256 encrypted */
 
 /* Crypto scheme configuration */
@@ -39,17 +39,18 @@ extern "C" {
 #endif /* CRYPTO_SCHEME */
 
 /* Available crypto implementation */
-#define CRYPTO_IMPLEMENTATION_HW 0x1  /* HW crypto through direct HAL */
-#define CRYPTO_IMPLEMENTATION_SW 0x2  /* SW crypto through MbedTLS */
+#define CRYPTO_IMPLEMENTATION_HW 0x1
+#define CRYPTO_IMPLEMENTATION_SW 0x2
 
 /* Crypto implementation configuration */
 #define CRYPTO_IMPLEMENTATION    CRYPTO_IMPLEMENTATION_SW
 
 /* Crypto implementation settings */
-#if (CRYPTO_IMPLEMENTATION == CRYPTO_IMPLEMENTATION_HW)
-#define PKA_ECDSA_SIGNATURE_ADDRESS 0x0578UL
-#elif (CRYPTO_IMPLEMENTATION == CRYPTO_IMPLEMENTATION_SW)
 #define MCUBOOT_USE_MBED_TLS
+#if (CRYPTO_IMPLEMENTATION == CRYPTO_IMPLEMENTATION_HW)
+#define ROT_MBEDTLS_MEM_BUF_LEN (0x800U)
+#elif (CRYPTO_IMPLEMENTATION == CRYPTO_IMPLEMENTATION_SW)
+#define ROT_MBEDTLS_MEM_BUF_LEN (0x1000U)
 #endif /* CRYPTO_IMPLEMENTATION */
 
 
@@ -114,42 +115,42 @@ extern "C" {
     /* Do nothing. */            \
   } while (0)
 
-/*
- * Installation mode configuration
- */
-#define OVERWRITE_MODE                        0
-#define SWAP_MODE                             1
-#define INSTALLATION_MODE                     OVERWRITE_MODE /* Select OVERWRITE_MODE or SWAP_MODE */
 
-/* Check installation mode configuration */
-#if (INSTALLATION_MODE == OVERWRITE_MODE)
+/*
+ * Installation mode
+ */
+#define INSTALLATION_MODE_OVERWRITE      (0x1U) /* Image installation is definitive */
+#define INSTALLATION_MODE_SWAP           (0x2U) /* Installed image shall be confirmed else it is reverted */
+#define INSTALLATION_MODE                INSTALLATION_MODE_OVERWRITE
+
+#if (INSTALLATION_MODE == INSTALLATION_MODE_OVERWRITE)
 #define MCUBOOT_OVERWRITE_ONLY
-#elif (INSTALLATION_MODE == SWAP_MODE)
+#elif (INSTALLATION_MODE == INSTALLATION_MODE_SWAP)
 #define MCUBOOT_SWAP_USING_MOVE
 #else
-#error "Installation mode configuration error"
-#endif /* INSTALLATION_MODE */
+#error "Installation mode not supported"
+#endif
 
 /*
  * Application image number:
  * - 1: without isolation
  * - 2: with isolation (S and NS app images)
  */
-#define MCUBOOT_APP_IMAGE_NUMBER              1
+#define MCUBOOT_APP_IMAGE_NUMBER              1U
 
 /*
  * If application
  * - without isolation: Data image number (0 or 1)
  * - with isolation: Secure Data image number (0 or 1)
  */
-#define MCUBOOT_S_DATA_IMAGE_NUMBER           0
+#define MCUBOOT_S_DATA_IMAGE_NUMBER           (0x0U)
 
 /*
  * If application
  * - without isolation: 0
  * - with isolation: NonSecure Data image number (0 or 1)
  */
-#define MCUBOOT_NS_DATA_IMAGE_NUMBER          0
+#define MCUBOOT_NS_DATA_IMAGE_NUMBER          (0x0U)
 
 /* Required definition for project without isolation */
 #define MCUBOOT_DATA_IMAGE_NUMBER MCUBOOT_S_DATA_IMAGE_NUMBER

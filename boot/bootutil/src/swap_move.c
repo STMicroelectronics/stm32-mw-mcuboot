@@ -376,6 +376,8 @@ boot_move_sector_up(int idx, uint32_t sz, struct boot_loader_state *state,
     uint32_t old_off;
     int rc;
 
+    BOOT_LOG_INF("Move sector %d up in primary slot", idx - 1);
+
     /*
      * FIXME: assuming sectors of size == sz, a single off variable
      * would be enough
@@ -425,6 +427,8 @@ boot_swap_sectors(int idx, uint32_t sz, struct boot_loader_state *state,
     sec_off = boot_img_sector_off(state, BOOT_SECONDARY_SLOT, idx - 1);
 
     if (bs->state == BOOT_STATUS_STATE_0) {
+        BOOT_LOG_INF("Copy secondary slot sector %d to primary slot sector %d", idx - 1, idx - 1);
+
         rc = boot_erase_region(fap_pri, pri_off, sz);
         assert(rc == 0);
 
@@ -437,6 +441,8 @@ boot_swap_sectors(int idx, uint32_t sz, struct boot_loader_state *state,
     }
 
     if (bs->state == BOOT_STATUS_STATE_1) {
+        BOOT_LOG_INF("Copy primary slot sector %d to secondary slot sector %d", idx, idx - 1);
+
         rc = boot_erase_region(fap_sec, sec_off, sz);
         assert(rc == 0);
 
@@ -517,7 +523,7 @@ swap_run(struct boot_loader_state *state, struct boot_status *bs,
     const struct flash_area *fap_sec;
     int rc;
 
-    BOOT_LOG_INF("Starting swap using move algorithm.");
+    BOOT_LOG_INF("Image index: %d, Starting swap using move algorithm.", BOOT_CURR_IMG(state));
 
     last_idx = find_last_idx(state, copy_size);
     sector_sz = boot_img_sector_size(state, BOOT_PRIMARY_SLOT, 0);
@@ -540,7 +546,7 @@ swap_run(struct boot_loader_state *state, struct boot_status *bs,
 
         if (last_idx >= first_trailer_idx) {
             BOOT_LOG_WRN("Not enough free space to run swap upgrade");
-            BOOT_LOG_WRN("required %d bytes but only %d are available",
+            BOOT_LOG_WRN("required %" PRIu32 " bytes but only %" PRIu32 " are available",
                          (last_idx + 1) * sector_sz,
                          first_trailer_idx * sector_sz);
             bs->swap_type = BOOT_SWAP_TYPE_NONE;

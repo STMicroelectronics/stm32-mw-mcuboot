@@ -509,6 +509,8 @@ class BasedIntParamType(click.ParamType):
               default='little', help="Select little or big endian")
 @click.option('--overwrite-only', default=False, is_flag=True,
               help='Use overwrite-only instead of swap upgrades')
+@click.option('--trailer-size', type=BasedIntParamType(), required=False,
+              help='Reserve this many bytes for the image trailer')
 @click.option('--boot-record', metavar='sw_type', help='Create CBOR encoded '
               'boot record TLV. The sw_type represents the role of the '
               'software component (e.g. CoFM for coprocessor firmware). '
@@ -583,7 +585,7 @@ class BasedIntParamType(click.ParamType):
                .hex extension, otherwise binary format is used''')
 def sign(key, public_key_format, align, version, pad_sig, header_size,
          pad_header, slot_size, pad, confirm, max_sectors, overwrite_only,
-         endian, encrypt_keylen, encrypt, compression, infile, outfile,
+         trailer_size, endian, encrypt_keylen, encrypt, compression, infile, outfile,
          dependencies, load_addr, hex_addr, erased_val, save_enctlv,
          security_counter, boot_record, custom_tlv, rom_fixed,otfdec, primary_only, max_align,
          clear, fix_sig, fix_sig_pubkey, sig_out, user_sha, vector_to_sign,magic_val,
@@ -597,6 +599,7 @@ def sign(key, public_key_format, align, version, pad_sig, header_size,
                       pad_header=pad_header, pad=pad, confirm=confirm,
                       align=int(align), slot_size=slot_size,
                       max_sectors=max_sectors, overwrite_only=overwrite_only,
+                      trailer_size=trailer_size,
                       endian=endian, load_addr=load_addr, rom_fixed=rom_fixed,
                       erased_val=erased_val, save_enctlv=save_enctlv,
                       security_counter=security_counter, max_align=max_align,magic_val=magic_val,
@@ -686,6 +689,7 @@ def sign(key, public_key_format, align, version, pad_sig, header_size,
                   pad=pad, confirm=confirm, align=int(align),
                   slot_size=slot_size, max_sectors=max_sectors,
                   overwrite_only=overwrite_only, endian=endian,
+                  trailer_size=trailer_size,
                   load_addr=load_addr, rom_fixed=rom_fixed,
                   erased_val=erased_val, save_enctlv=save_enctlv,
                   security_counter=security_counter, max_align=max_align)

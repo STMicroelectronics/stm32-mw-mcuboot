@@ -22,6 +22,62 @@ More  documentation is available at [MCUboot SW Pack online documentation](https
 
 # Update History
 
+<label for="collapse-section4" aria-hidden="true">__2.0.3 / 25-Sept-2026__</label>
+<div>
+
+## Main Changes
+
+- Minor update of imgtool python scripts
+- Fix compile warnings in source code for swap mode
+
+## Known limitations
+
+- None
+
+## Backward compatibility
+
+- Full compatibility with previous versions
+
+## Development Toolchains and Compilers
+
+- IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 + ST-LINK
+- MDK-ARM Keil uVision V5.42
+- STM32CubeIDE for Visual Studio Code (GCC13 compiler)
+
+## Dependencies
+
+- STFCF SW Pack V2.0.0 or greater
+
+</div>
+
+<label for="collapse-section3" aria-hidden="true">__2.0.2 / 3-July-2026__</label>
+<div>
+
+## Main Changes
+
+- Compilation fix for cmake
+- SBOM cleanup
+
+## Known limitations
+
+- None
+
+## Backward compatibility
+
+- Full compatibility with previous versions
+
+## Development Toolchains and Compilers
+
+- IAR Embedded Workbench for ARM (EWARM) toolchain V9.60.3 + ST-LINK
+- MDK-ARM Keil uVision V5.42
+- STM32CubeIDE for Visual Studio Code (GCC13 compiler)
+
+## Dependencies
+
+- STFCF SW Pack V2.0.0 or greater
+
+</div>
+
 <label for="collapse-section2" aria-hidden="true">__2.0.1 / 5-June-2026__</label>
 <div>
 
