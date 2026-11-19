@@ -1,8 +1,5 @@
 /*
- * SPDX-License-Identifier: Apache-2.0
- *
  * Copyright (c) 2019 JUUL Labs
- * Copyright (c) 2023 STMicroelectronics
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <inttypes.h>
@@ -143,17 +141,12 @@ swap_read_status_bytes(const struct flash_area *fap,
     write_sz = BOOT_WRITE_SZ(state);
     off = boot_status_off(fap);
     for (i = max_entries; i > 0; i--) {
-        rc = flash_area_read(fap, off + (i - 1) * write_sz, &status, 1);
+        rc = flash_area_read_is_empty(fap, off + (i - 1) * write_sz, &status, 1);
         if (rc < 0) {
             return BOOT_EFLASH;
         }
 
-#ifdef MCUBOOT_USE_MCE
-        if (bootutil_buffer_is_erased(fap->fa_off + off + (i - 1) * write_sz,
-                                      fap, &status, 1)) {
-#else /* not MCUBOOT_USE_MCE */
-        if (bootutil_buffer_is_erased(fap, &status, 1)) {
-#endif /* MCUBOOT_USE_MCE */
+        if (rc == 1) {
             if (rc != last_rc) {
                 erased_sections++;
             }
@@ -217,36 +210,23 @@ boot_status_internal_off(const struct boot_status *bs, int elem_sz)
 int
 boot_slots_compatible(struct boot_loader_state *state)
 {
-    size_t num_sectors_pri;
-    size_t num_sectors_sec;
-    size_t sector_sz_pri = 0;
-    size_t sector_sz_sec = 0;
+    size_t num_sectors;
     size_t i;
 
-    num_sectors_pri = boot_img_num_sectors(state, BOOT_PRIMARY_SLOT);
-    num_sectors_sec = boot_img_num_sectors(state, BOOT_SECONDARY_SLOT);
-    if ((num_sectors_pri != num_sectors_sec) &&
-            (num_sectors_pri != (num_sectors_sec + 1))) {
-        BOOT_LOG_WRN("Cannot upgrade: not a compatible amount of sectors");
+    num_sectors = boot_img_num_sectors(state, BOOT_PRIMARY_SLOT);
+    if (num_sectors != boot_img_num_sectors(state, BOOT_SECONDARY_SLOT)) {
+        BOOT_LOG_WRN("Cannot upgrade: slots don't have same amount of sectors");
         return 0;
     }
 
-    if (num_sectors_pri > BOOT_MAX_IMG_SECTORS) {
+    if (num_sectors > BOOT_MAX_IMG_SECTORS) {
         BOOT_LOG_WRN("Cannot upgrade: more sectors than allowed");
         return 0;
     }
 
-    for (i = 0; i < num_sectors_sec; i++) {
-        sector_sz_pri = boot_img_sector_size(state, BOOT_PRIMARY_SLOT, i);
-        sector_sz_sec = boot_img_sector_size(state, BOOT_SECONDARY_SLOT, i);
-        if (sector_sz_pri != sector_sz_sec) {
-            BOOT_LOG_WRN("Cannot upgrade: not same sector layout");
-            return 0;
-        }
-    }
-
-    if (num_sectors_pri > num_sectors_sec) {
-        if (sector_sz_pri != boot_img_sector_size(state, BOOT_PRIMARY_SLOT, i)) {
+    for (i = 0; i < num_sectors; i++) {
+        if (boot_img_sector_size(state, BOOT_PRIMARY_SLOT, i) !=
+                boot_img_sector_size(state, BOOT_SECONDARY_SLOT, i)) {
             BOOT_LOG_WRN("Cannot upgrade: not same sector layout");
             return 0;
         }
@@ -270,7 +250,6 @@ int
 swap_status_source(struct boot_loader_state *state)
 {
     struct boot_swap_state state_primary_slot;
-    struct boot_swap_state state_secondary_slot;
     int rc;
     uint8_t source;
     uint8_t image_index;
@@ -287,15 +266,8 @@ swap_status_source(struct boot_loader_state *state)
 
     BOOT_LOG_SWAP_STATE("Primary image", &state_primary_slot);
 
-    rc = boot_read_swap_state_by_id(FLASH_AREA_IMAGE_SECONDARY(image_index),
-            &state_secondary_slot);
-    assert(rc == 0);
-
-    BOOT_LOG_SWAP_STATE("Secondary image", &state_secondary_slot);
-
     if (state_primary_slot.magic == BOOT_MAGIC_GOOD &&
-            state_primary_slot.copy_done == BOOT_FLAG_UNSET &&
-            state_secondary_slot.magic != BOOT_MAGIC_GOOD) {
+            state_primary_slot.copy_done == BOOT_FLAG_UNSET) {
 
         source = BOOT_STATUS_SOURCE_PRIMARY_SLOT;
 

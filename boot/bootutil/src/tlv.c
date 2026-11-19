@@ -1,8 +1,5 @@
 /*
- * SPDX-License-Identifier: Apache-2.0
- *
  * Copyright (c) 2019 JUUL Labs
- * Copyright (c) 2020 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +44,7 @@ bootutil_tlv_iter_begin(struct image_tlv_iter *it, const struct image_header *hd
     }
 
     off_ = BOOT_TLV_OFF(hdr);
-    if (LOAD_IMAGE_DATA(hdr, fap, off_, &info, sizeof(info))) {
+    if (flash_area_read(fap, off_, &info, sizeof(info))) {
         return -1;
     }
 
@@ -56,8 +53,7 @@ bootutil_tlv_iter_begin(struct image_tlv_iter *it, const struct image_header *hd
             return -1;
         }
 
-        if (LOAD_IMAGE_DATA(hdr, fap, off_ + info.it_tlv_tot,
-                            &info, sizeof(info))) {
+        if (flash_area_read(fap, off_ + info.it_tlv_tot, &info, sizeof(info))) {
             return -1;
         }
     } else if (hdr->ih_protect_tlv_size != 0) {
@@ -107,7 +103,7 @@ bootutil_tlv_iter_next(struct image_tlv_iter *it, uint32_t *off, uint16_t *len,
             it->tlv_off += sizeof(struct image_tlv_info);
         }
 
-        rc = LOAD_IMAGE_DATA(it->hdr, it->fap, it->tlv_off, &tlv, sizeof tlv);
+        rc = flash_area_read(it->fap, it->tlv_off, &tlv, sizeof tlv);
         if (rc) {
             return -1;
         }

@@ -1,13 +1,4 @@
 /*
- * SPDX-License-Identifier: Apache-2.0
- *
- * Copyright (c) 2017-2018 Linaro LTD
- * Copyright (c) 2017-2019 JUUL Labs
- * Copyright (c) 2020 Arm Limited
- * Copyright (c) 2023 STMicroelectronics
- *
- * Original license:
- *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -32,16 +23,17 @@
 
 #ifdef MCUBOOT_SIGN_RSA
 #include "bootutil/sign_key.h"
-#include "bootutil/crypto/rsa_oaep.h"
+#include "bootutil/sha256.h"
+
+#include "mbedtls/rsa.h"
 #include "mbedtls/asn1.h"
+#include "mbedtls/version.h"
 
 #include "bootutil_priv.h"
-#include "bootutil/fault_injection_hardening.h"
 
 #if defined(MCUBOOT_DOUBLE_SIGN_VERIF)
 #include "boot_hal_imagevalid.h"
 #endif /* MCUBOOT_DOUBLE_SIGN_VERIF */
-
 
 /*
  * Constants for this particular constrained implementation of
@@ -77,7 +69,7 @@ static const uint8_t pss_zeros[8] = {0};
  * Parse the public key used for signing. Simple RSA format.
  */
 static int
-bootutil_parse_rsakey(bootutil_rsa_context *ctx, uint8_t **p, uint8_t *end)
+bootutil_parse_rsakey(mbedtls_rsa_context *ctx, uint8_t **p, uint8_t *end)
 {
     int rc;
     size_t len;
@@ -91,18 +83,17 @@ bootutil_parse_rsakey(bootutil_rsa_context *ctx, uint8_t **p, uint8_t *end)
         return -2;
     }
 
-    /* retrieve N and E (public key) */
-    if ((rc = bootutil_asn1_get_rsa_number(p, end, &ctx->N)) != 0 ||
-      (rc = bootutil_asn1_get_rsa_number(p, end, &ctx->E)) != 0) {
+    if ((rc = mbedtls_asn1_get_mpi(p, end, &ctx->N)) != 0 ||
+      (rc = mbedtls_asn1_get_mpi(p, end, &ctx->E)) != 0) {
         return -3;
     }
-    ctx->len = bootutil_rsa_number_size(&ctx->N);
+
+    ctx->len = mbedtls_mpi_size(&ctx->N);
 
     if (*p != end) {
         return -4;
     }
 
-#if defined(MCUBOOT_USE_MBED_TLS)
     /* The mbedtls version is more than 2.6.1 */
 #if MBEDTLS_VERSION_NUMBER > 0x02060100
     rc = mbedtls_rsa_import(ctx, &ctx->N, NULL, NULL, NULL, &ctx->E);
@@ -115,9 +106,10 @@ bootutil_parse_rsakey(bootutil_rsa_context *ctx, uint8_t **p, uint8_t *end)
     if (rc != 0) {
         return -6;
     }
-#endif /* MCUBOOT_USE_MBED_TLS */
 
-    return rc;
+    ctx->len = mbedtls_mpi_size(&ctx->N);
+
+    return 0;
 }
 
 /*
@@ -153,32 +145,15 @@ pss_mgf1(uint8_t *mask, const uint8_t *hash)
         mask += bytes;
         count -= bytes;
     }
-
-    bootutil_sha256_drop(&ctx);
 }
 
-#if defined(MCUBOOT_DOUBLE_SIGN_VERIF)
-static uint32_t boot_secure_memequal(const void *s1, const void *s2, size_t n)
-{
-    size_t i;
-    uint8_t *s1_p = (uint8_t*) s1;
-    uint8_t *s2_p = (uint8_t*) s2;
-    uint32_t ret = 0;
-
-    for (i = 0; i < n; i++) {
-        ret |= (s1_p[i] ^ s2_p[i]);
-    }
-
-    return ret;
-}
-#endif
 /*
  * Validate an RSA signature, using RSA-PSS, as described in PKCS #1
  * v2.2, section 9.1.2, with many parameters required to have fixed
  * values.
  */
-static fih_int
-bootutil_cmp_rsasig(bootutil_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
+static int
+bootutil_cmp_rsasig(mbedtls_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
   uint8_t *sig)
 {
     bootutil_sha256_context shactx;
@@ -186,23 +161,18 @@ bootutil_cmp_rsasig(bootutil_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
     uint8_t db_mask[PSS_MASK_LEN];
     uint8_t h2[PSS_HLEN];
     int i;
-    int rc = 0;
-    fih_int fih_rc = FIH_FAILURE;
 
     if (ctx->len != PSS_EMLEN || PSS_EMLEN > MBEDTLS_MPI_MAX_SIZE) {
-        rc = -1;
-        goto out;
+        return -1;
     }
 
     if (hlen != PSS_HLEN) {
-        rc = -1;
-        goto out;
+        return -1;
     }
 
-    if (bootutil_rsa_public(ctx, sig, em)) {
-       rc = -1;
-       goto out;
-   }
+    if (mbedtls_rsa_public(ctx, sig, em)) {
+        return -1;
+    }
 
     /*
      * PKCS #1 v2.2, 9.1.2 EMSA-PSS-Verify
@@ -229,8 +199,7 @@ bootutil_cmp_rsasig(bootutil_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
      * 0xbc, output inconsistent and stop.
      */
     if (em[PSS_EMLEN - 1] != 0xbc) {
-        rc = -1;
-        goto out;
+        return -1;
     }
 
     /* Step 5.  Let maskedDB be the leftmost emLen - hLen - 1 octets
@@ -270,14 +239,12 @@ bootutil_cmp_rsasig(bootutil_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
      * hexadecimal value 0x01, output "inconsistent" and stop. */
     for (i = 0; i < PSS_MASK_ZERO_COUNT; i++) {
         if (db_mask[i] != 0) {
-            rc = -1;
-            goto out;
+            return -1;
         }
     }
 
     if (db_mask[PSS_MASK_ONE_POS] != 1) {
-        rc = -1;
-        goto out;
+        return -1;
     }
 
     /* Step 11. Let salt be the last sLen octets of DB */
@@ -290,11 +257,12 @@ bootutil_cmp_rsasig(bootutil_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
     bootutil_sha256_update(&shactx, hash, PSS_HLEN);
     bootutil_sha256_update(&shactx, &db_mask[PSS_MASK_SALT_POS], PSS_SLEN);
     bootutil_sha256_finish(&shactx, h2);
-    bootutil_sha256_drop(&shactx);
 
     /* Step 14.  If H = H', output "consistent".  Otherwise, output
      * "inconsistent". */
-    FIH_CALL(boot_fih_memequal, fih_rc, h2, &em[PSS_HASH_OFFSET], PSS_HLEN);
+    if (boot_secure_memequal(h2, &em[PSS_HASH_OFFSET], PSS_HLEN) != 0) {
+        return -1;
+    }
 
 #if defined(MCUBOOT_DOUBLE_SIGN_VERIF)
     /* Double the signature verification (using another way) to resist to basic HW attacks.
@@ -311,51 +279,38 @@ bootutil_cmp_rsasig(bootutil_rsa_context *ctx, uint8_t *hash, uint32_t hlen,
         /* Check ImageValidIndex is in expected range MCUBOOT_IMAGE_NUMBER */
         if (ImageValidIndex >= MCUBOOT_IMAGE_NUMBER)
         {
-          fih_rc = fih_int_encode(-1);
-          FIH_RET(fih_rc);
+          return -1;
         }
         em[PSS_HASH_OFFSET] ^= IMAGE_VALID;
         ImageValidStatus[ImageValidIndex++] = boot_secure_memequal(h2, &em[PSS_HASH_OFFSET], PSS_HLEN);
     }
 #endif /* MCUBOOT_DOUBLE_SIGN_VERIF */
 
-out:
-    if (rc) {
-        fih_rc = fih_int_encode(rc);
-    }
-    FIH_RET(fih_rc);
+    return 0;
 }
 
-fih_int
+int
 bootutil_verify_sig(uint8_t *hash, uint32_t hlen, uint8_t *sig, size_t slen,
   uint8_t key_id)
 {
-    bootutil_rsa_context ctx;
-
+    mbedtls_rsa_context ctx;
     int rc;
-    fih_int fih_rc = FIH_FAILURE;
     uint8_t *cp;
     uint8_t *end;
 
-    bootutil_rsa_init(&ctx, 0, 0);
+    mbedtls_rsa_init(&ctx, 0, 0);
 
     cp = (uint8_t *)bootutil_keys[key_id].key;
     end = cp + *bootutil_keys[key_id].len;
 
     rc = bootutil_parse_rsakey(&ctx, &cp, end);
-
-
     if (rc || slen != ctx.len) {
-        bootutil_rsa_drop(&ctx);
-        goto out;
+        mbedtls_rsa_free(&ctx);
+        return rc;
     }
-    FIH_CALL(bootutil_cmp_rsasig, fih_rc, &ctx, hash, hlen, sig);
+    rc = bootutil_cmp_rsasig(&ctx, hash, hlen, sig);
+    mbedtls_rsa_free(&ctx);
 
-out:
-    bootutil_rsa_drop(&ctx);
-
-
-    FIH_RET(fih_rc);
+    return rc;
 }
 #endif /* MCUBOOT_SIGN_RSA */
-

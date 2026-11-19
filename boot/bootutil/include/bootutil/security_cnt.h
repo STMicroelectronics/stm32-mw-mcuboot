@@ -1,6 +1,5 @@
 /*
  *  Copyright (c) 2019-2020, Arm Limited. All rights reserved.
- *  Copyright (c) 2023, STMicroelectronics. All rights reserved.
  *
  *  SPDX-License-Identifier: Apache-2.0
  */
@@ -27,7 +26,6 @@
  */
 
 #include <stdint.h>
-#include "bootutil/fault_injection_hardening.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,9 +34,9 @@ extern "C" {
 /**
  * Initialises the security counters.
  *
- * @return                  FIH_SUCCESS on success
+ * @return                  0 on success; nonzero on failure.
  */
-fih_int boot_nv_security_counter_init(void);
+int32_t boot_nv_security_counter_init(void);
 
 /**
  * Reads the stored value of a given image's security counter.
@@ -46,9 +44,9 @@ fih_int boot_nv_security_counter_init(void);
  * @param image_id          Index of the image (from 0).
  * @param security_cnt      Pointer to store the security counter value.
  *
- * @return                  FIH_SUCCESS on success
+ * @return                  0 on success; nonzero on failure.
  */
-fih_int boot_nv_security_counter_get(uint32_t image_id, fih_int *security_cnt);
+int32_t boot_nv_security_counter_get(uint32_t image_id, uint32_t *security_cnt);
 
 /**
  * Updates the stored value of a given image's security counter with a new
@@ -58,14 +56,11 @@ fih_int boot_nv_security_counter_get(uint32_t image_id, fih_int *security_cnt);
  * @param img_security_cnt  New security counter value. The new value must be
  *                          between 0 and UINT32_MAX and it must be greater than
  *                          or equal to the current security counter value.
- * @param updated           Pointer to cnt updated status flag (1: yes, 0: no)
  *
  * @return                  0 on success; nonzero on failure.
  */
 int32_t boot_nv_security_counter_update(uint32_t image_id,
-                                        uint32_t img_security_cnt,
-                                        uint32_t *updated
-);
+                                        uint32_t img_security_cnt);
 
 #ifdef __cplusplus
 }

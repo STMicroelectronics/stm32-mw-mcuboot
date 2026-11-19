@@ -1,7 +1,4 @@
-cryptography>=40.0.0
+cryptography>=2.6
 intelhex
 click
-cbor2
-setuptools
-pyyaml
-pytest
+cbor>=1.0.0
