@@ -1,4 +1,13 @@
 /*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Copyright (c) 2017-2019 Linaro LTD
+ * Copyright (c) 2016-2019 JUUL Labs
+ * Copyright (c) 2019-2020 Arm Limited
+ * Copyright (c) 2023 STMicroelectronics
+ *
+ * Original license:
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -21,6 +30,7 @@
 #define H_BOOTUTIL_
 
 #include <inttypes.h>
+#include "bootutil/fault_injection_hardening.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,9 +59,9 @@ extern "C" {
 
 /** Swapping encountered an unrecoverable error */
 #define BOOT_SWAP_TYPE_PANIC    0xff
-
+#ifndef BOOT_MAX_ALIGN
 #define BOOT_MAX_ALIGN          8
-
+#endif /* BOOT_MAX_ALIGN */
 struct image_header;
 /**
  * A response object provided by the boot loader code; indicates where to jump
@@ -83,10 +93,10 @@ struct image_trailer {
 };
 
 /* you must have pre-allocated all the entries within this structure */
-int boot_go(struct boot_rsp *rsp);
+fih_int boot_go(struct boot_rsp *rsp);
 
 struct boot_loader_state;
-int context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp);
+fih_int context_boot_go(struct boot_loader_state *state, struct boot_rsp *rsp);
 
 int boot_swap_type_multi(int image_index);
 int boot_swap_type(void);
@@ -97,8 +107,8 @@ int boot_set_confirmed(void);
 #define SPLIT_GO_OK                 (0)
 #define SPLIT_GO_NON_MATCHING       (-1)
 #define SPLIT_GO_ERR                (-2)
-int
-split_go(int loader_slot, int split_slot, void **entry);
+
+fih_int split_go(int loader_slot, int split_slot, void **entry);
 
 #ifdef __cplusplus
 }
